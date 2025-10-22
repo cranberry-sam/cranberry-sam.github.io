@@ -1,0 +1,17 @@
+# PDF Processing
+PyMuPDF>=1.23.0  # For PDF text and image extraction
+
+# AI / LLM
+anthropic>=0.18.0  # Claude API for image analysis
+
+# Text-to-Speech
+piper-tts>=1.2.0  # Local TTS engine
+
+# Image Processing
+Pillow>=10.0.0  # For image manipulation
+
+# Configuration
+PyYAML>=6.0  # For config file handling
+
+# Audio Processing
+pydub>=0.25.1  # For audio file manipulation (optional, for advanced features)

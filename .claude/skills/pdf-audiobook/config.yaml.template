@@ -1,0 +1,82 @@
+# PDF Audiobook Generator Configuration
+# Copy this file to config.yaml and fill in your settings
+
+# API Keys
+api:
+  # Get your API key from: https://console.anthropic.com/
+  anthropic_api_key: "YOUR_API_KEY_HERE"
+
+# Text-to-Speech Settings
+tts:
+  # Speaking rate: 0.5 (slow) to 2.0 (fast), 1.0 is normal
+  speaking_rate: 1.0
+
+  # Voice model options:
+  # - "en_US-lessac-medium" (US English, neutral)
+  # - "en_GB-alan-medium" (British English)
+  # - "en_US-libritts-high" (US English, high quality, slower)
+  voice_model: "en_US-lessac-medium"
+
+  # Audio quality: "low", "medium", "high"
+  audio_quality: "high"
+
+  # Output format: "mp3", "wav"
+  output_format: "mp3"
+
+# Text Processing Settings
+text_processing:
+  # Sections to summarize instead of reading verbatim
+  summarize_sections:
+    - "bibliography"
+    - "references"
+    - "index"
+    - "appendix"
+    - "glossary"
+
+  # Should we read figure captions in addition to AI descriptions?
+  include_original_captions: false
+
+  # Maximum length of a citation before it gets summarized (in characters)
+  citation_length_threshold: 200
+
+  # How to handle tables
+  # Options: "describe", "summarize", "skip"
+  table_handling: "describe"
+
+# Image Analysis Settings
+image_analysis:
+  # Claude model to use for image analysis
+  # Options: "claude-3-5-sonnet-20241022", "claude-3-opus-20240229"
+  model: "claude-3-5-sonnet-20241022"
+
+  # Maximum tokens for image descriptions
+  max_tokens: 500
+
+  # Should we be verbose or concise with image descriptions?
+  # Options: "concise", "detailed", "very_detailed"
+  description_style: "detailed"
+
+  # Include technical details in descriptions?
+  include_technical_details: true
+
+# Output Settings
+output:
+  # Where to save processed scripts
+  script_directory: "output/scripts"
+
+  # Where to save generated audio files
+  audio_directory: "output/audio"
+
+  # Where to save extracted images
+  image_directory: "output/images"
+
+  # Keep intermediate files after processing?
+  keep_intermediate_files: true
+
+# Performance Settings
+performance:
+  # Number of concurrent image analyses (higher = faster but more API cost)
+  max_concurrent_api_calls: 3
+
+  # Batch size for audio generation (sentences per batch)
+  audio_batch_size: 10
