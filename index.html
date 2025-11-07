@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Watchlist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+        }
+
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .search-box select {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+        }
+
+        .search-result-item:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+        }
+
+        .search-result-item img {
+            width: 100%;
+            height: 225px;
+            object-fit: cover;
+        }
+
+        .search-result-item .title {
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .manual-add {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .manual-add h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .manual-add input, .manual-add textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        .manual-add textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .watchlist-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .watchlist-items {
+            display: grid;
+            gap: 20px;
+        }
+
+        .watchlist-item {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: start;
+            transition: transform 0.2s;
+        }
+
+        .watchlist-item:hover {
+            transform: translateX(5px);
+        }
+
+        .watchlist-item.watched {
+            opacity: 0.7;
+        }
+
+        .item-poster {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .item-meta {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .item-overview {
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .item-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .item-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .item-links a:hover {
+            text-decoration: underline;
+        }
+
+        .review-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .review-text {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-style: italic;
+            color: #4a5568;
+        }
+
+        .review-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-family: inherit;
+            min-height: 60px;
+        }
+
+        .item-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-watched {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-watched:hover {
+            background: #38a169;
+        }
+
+        .btn-review {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-review:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .watchlist-item {
+                grid-template-columns: 1fr;
+            }
+
+            .item-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-results {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <h1>🎬 Our Watchlist</h1>
+            <input type="password" id="passwordInput" placeholder="Enter password" autofocus>
+            <button class="btn" onclick="login()">Login</button>
+            <div id="loginError" class="error"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appPage" class="app-container">
+        <div class="container">
+            <div class="header">
+                <h1>🎬 Our Watchlist</h1>
+                <button class="btn btn-small" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Search and Add Section -->
+            <div class="search-container">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">Add New Item</h2>
+
+                <div class="search-box">
+                    <select id="mediaType">
+                        <option value="movie">Movie</option>
+                        <option value="tv">TV Show</option>
+                        <option value="manual">Other (Manual)</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search for movies or TV shows...">
+                    <button class="btn btn-small" onclick="searchMedia()">Search</button>
+                </div>
+
+                <div id="searchResults" class="search-results"></div>
+
+                <!-- Manual Add Form -->
+                <div id="manualAddForm" class="manual-add" style="display: none;">
+                    <h3>Add Manually (Books, Games, Podcasts, etc.)</h3>
+                    <input type="text" id="manualTitle" placeholder="Title">
+                    <input type="text" id="manualType" placeholder="Type (e.g., Book, Game, Podcast)">
+                    <textarea id="manualNotes" placeholder="Notes or description (optional)"></textarea>
+                    <button class="btn" onclick="addManualItem()">Add to Watchlist</button>
+                </div>
+            </div>
+
+            <!-- Watchlist Section -->
+            <div class="watchlist-container">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">My Watchlist</h2>
+
+                <div class="filter-tabs">
+                    <div class="filter-tab active" onclick="filterWatchlist('all')">All</div>
+                    <div class="filter-tab" onclick="filterWatchlist('to-watch')">To Watch</div>
+                    <div class="filter-tab" onclick="filterWatchlist('watched')">Watched</div>
+                    <div class="filter-tab" onclick="filterWatchlist('movie')">Movies</div>
+                    <div class="filter-tab" onclick="filterWatchlist('tv')">TV Shows</div>
+                    <div class="filter-tab" onclick="filterWatchlist('other')">Other</div>
+                </div>
+
+                <div id="watchlistItems" class="watchlist-items">
+                    <div class="loading">Loading your watchlist...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONFIGURATION ==========
+        // TODO: Replace these with your actual values
+        const CONFIG = {
+            PASSWORD: 'give me movie show',
+            GITHUB_TOKEN: 'YOUR_GITHUB_TOKEN_HERE', // Get from: https://github.com/settings/tokens
+            GITHUB_OWNER: 'cranberry-sam',
+            GITHUB_REPO: 'cranberry-sam.github.io',
+            GITHUB_BRANCH: 'claude/shared-media-watchlist-app-011CUuMXViUKygXXmh13CmZ5',
+            TMDB_API_KEY: '1a3c65b8d1c6e0f61b4f8e7a9c3b2d5e' // Free demo key - get your own at: https://www.themoviedb.org/settings/api
+        };
+
+        const WATCHLIST_FILE = 'watchlist.json';
+        let watchlist = [];
+        let currentFilter = 'all';
+
+        // ========== LOGIN ==========
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === CONFIG.PASSWORD) {
+                localStorage.setItem('authenticated', 'true');
+                showApp();
+            } else {
+                document.getElementById('loginError').textContent = 'Incorrect password';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authenticated');
+            location.reload();
+        }
+
+        function showApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appPage').classList.add('active');
+            loadWatchlist();
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('authenticated') === 'true') {
+            showApp();
+        }
+
+        // Enter key to login
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') login();
+                });
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') searchMedia();
+                });
+            }
+
+            // Show manual form when "Other" is selected
+            document.getElementById('mediaType').addEventListener('change', (e) => {
+                const manualForm = document.getElementById('manualAddForm');
+                const searchBox = document.getElementById('searchInput').parentElement;
+                if (e.target.value === 'manual') {
+                    manualForm.style.display = 'block';
+                    searchBox.style.display = 'none';
+                    document.getElementById('searchResults').innerHTML = '';
+                } else {
+                    manualForm.style.display = 'none';
+                    searchBox.style.display = 'flex';
+                }
+            });
+        });
+
+        // ========== GITHUB API ==========
+        async function loadWatchlist() {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}?ref=${CONFIG.GITHUB_BRANCH}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content);
+                    watchlist = JSON.parse(content);
+                } else if (response.status === 404) {
+                    // File doesn't exist yet, create it
+                    watchlist = [];
+                    await saveWatchlist('Initialize watchlist');
+                } else {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error loading watchlist:', error);
+                watchlist = [];
+            }
+            renderWatchlist();
+        }
+
+        async function saveWatchlist(commitMessage) {
+            try {
+                // Get current file SHA if it exists
+                let sha = null;
+                const getResponse = await fetch(
+                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}?ref=${CONFIG.GITHUB_BRANCH}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (getResponse.ok) {
+                    const data = await getResponse.json();
+                    sha = data.sha;
+                }
+
+                // Save the file
+                const content = btoa(JSON.stringify(watchlist, null, 2));
+                const response = await fetch(
+                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: commitMessage,
+                            content: content,
+                            branch: CONFIG.GITHUB_BRANCH,
+                            ...(sha && { sha })
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Failed to save: ${response.status}`);
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Error saving watchlist:', error);
+                alert('Failed to save changes. Please check your GitHub token and try again.');
+                return false;
+            }
+        }
+
+        // ========== TMDB API ==========
+        async function searchMedia() {
+            const query = document.getElementById('searchInput').value.trim();
+            const mediaType = document.getElementById('mediaType').value;
+
+            if (!query) return;
+
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '<div class="loading">Searching...</div>';
+
+            try {
+                const response = await fetch(
+                    `https://api.themoviedb.org/3/search/${mediaType}?api_key=${CONFIG.TMDB_API_KEY}&query=${encodeURIComponent(query)}`
+                );
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    resultsContainer.innerHTML = data.results.slice(0, 12).map(item => `
+                        <div class="search-result-item" onclick='addToWatchlist(${JSON.stringify(item).replace(/'/g, "&apos;")}, "${mediaType}")'>
+                            ${item.poster_path
+                                ? `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${item.title || item.name}">`
+                                : '<div style="width:100%;height:225px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">No Image</div>'
+                            }
+                            <div class="title">${item.title || item.name}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #718096;">No results found</div>';
+                }
+            } catch (error) {
+                console.error('Error searching:', error);
+                resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Search failed</div>';
+            }
+        }
+
+        async function addToWatchlist(item, mediaType) {
+            // Get full details including watch providers
+            try {
+                const detailsResponse = await fetch(
+                    `https://api.themoviedb.org/3/${mediaType}/${item.id}?api_key=${CONFIG.TMDB_API_KEY}&append_to_response=watch/providers`
+                );
+                const details = await detailsResponse.json();
+
+                const newItem = {
+                    id: Date.now(),
+                    tmdbId: item.id,
+                    title: item.title || item.name,
+                    type: mediaType,
+                    year: (item.release_date || item.first_air_date || '').substring(0, 4),
+                    poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+                    overview: item.overview,
+                    watched: false,
+                    review: null,
+                    addedDate: new Date().toISOString(),
+                    tmdbUrl: `https://www.themoviedb.org/${mediaType}/${item.id}`,
+                    whereToWatch: details['watch/providers']?.results?.US?.link || null
+                };
+
+                watchlist.unshift(newItem);
+                await saveWatchlist(`Added "${newItem.title}" to watchlist`);
+                renderWatchlist();
+                document.getElementById('searchResults').innerHTML = '';
+                document.getElementById('searchInput').value = '';
+            } catch (error) {
+                console.error('Error adding item:', error);
+                alert('Failed to add item');
+            }
+        }
+
+        async function addManualItem() {
+            const title = document.getElementById('manualTitle').value.trim();
+            const type = document.getElementById('manualType').value.trim();
+            const notes = document.getElementById('manualNotes').value.trim();
+
+            if (!title) {
+                alert('Please enter a title');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                title: title,
+                type: type || 'other',
+                overview: notes,
+                watched: false,
+                review: null,
+                addedDate: new Date().toISOString(),
+                manual: true
+            };
+
+            watchlist.unshift(newItem);
+            await saveWatchlist(`Added "${newItem.title}" to watchlist`);
+            renderWatchlist();
+
+            // Clear form
+            document.getElementById('manualTitle').value = '';
+            document.getElementById('manualType').value = '';
+            document.getElementById('manualNotes').value = '';
+        }
+
+        // ========== WATCHLIST MANAGEMENT ==========
+        async function toggleWatched(id) {
+            const item = watchlist.find(i => i.id === id);
+            if (item) {
+                item.watched = !item.watched;
+                item.watchedDate = item.watched ? new Date().toISOString() : null;
+                await saveWatchlist(`Marked "${item.title}" as ${item.watched ? 'watched' : 'unwatched'}`);
+                renderWatchlist();
+            }
+        }
+
+        async function saveReview(id) {
+            const item = watchlist.find(i => i.id === id);
+            const review = document.getElementById(`review-${id}`).value.trim();
+
+            if (item && review) {
+                item.review = review;
+                await saveWatchlist(`Added review for "${item.title}"`);
+                renderWatchlist();
+            }
+        }
+
+        async function deleteItem(id) {
+            const item = watchlist.find(i => i.id === id);
+            if (item && confirm(`Remove "${item.title}" from watchlist?`)) {
+                watchlist = watchlist.filter(i => i.id !== id);
+                await saveWatchlist(`Removed "${item.title}" from watchlist`);
+                renderWatchlist();
+            }
+        }
+
+        function filterWatchlist(filter) {
+            currentFilter = filter;
+
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderWatchlist();
+        }
+
+        function renderWatchlist() {
+            const container = document.getElementById('watchlistItems');
+
+            let filtered = watchlist;
+
+            if (currentFilter === 'to-watch') {
+                filtered = watchlist.filter(item => !item.watched);
+            } else if (currentFilter === 'watched') {
+                filtered = watchlist.filter(item => item.watched);
+            } else if (currentFilter === 'movie') {
+                filtered = watchlist.filter(item => item.type === 'movie');
+            } else if (currentFilter === 'tv') {
+                filtered = watchlist.filter(item => item.type === 'tv');
+            } else if (currentFilter === 'other') {
+                filtered = watchlist.filter(item => item.type !== 'movie' && item.type !== 'tv');
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Nothing here yet!</h3>
+                        <p>Start adding movies, shows, or other media to your watchlist.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="watchlist-item ${item.watched ? 'watched' : ''}">
+                    ${item.poster
+                        ? `<img src="${item.poster}" alt="${item.title}" class="item-poster">`
+                        : '<div class="item-poster" style="background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>'
+                    }
+
+                    <div class="item-details">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-meta">
+                            ${item.type.toUpperCase()}
+                            ${item.year ? ` • ${item.year}` : ''}
+                            ${item.watched ? ' • ✓ Watched' : ''}
+                        </div>
+                        ${item.overview ? `<div class="item-overview">${item.overview}</div>` : ''}
+
+                        ${(item.tmdbUrl || item.whereToWatch) ? `
+                            <div class="item-links">
+                                ${item.tmdbUrl ? `<a href="${item.tmdbUrl}" target="_blank">View on TMDB</a>` : ''}
+                                ${item.whereToWatch ? `<a href="${item.whereToWatch}" target="_blank">Where to Watch</a>` : ''}
+                            </div>
+                        ` : ''}
+
+                        ${item.watched ? `
+                            <div class="review-section">
+                                ${item.review
+                                    ? `<div><strong>Review:</strong><div class="review-text">${item.review}</div></div>`
+                                    : `
+                                        <div><strong>Add a review:</strong></div>
+                                        <div class="review-form">
+                                            <textarea id="review-${item.id}" placeholder="What did you think?"></textarea>
+                                            <button class="btn btn-small" style="margin-top: 8px;" onclick="saveReview(${item.id})">Save Review</button>
+                                        </div>
+                                    `
+                                }
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="item-actions">
+                        <button class="btn-action btn-watched" onclick="toggleWatched(${item.id})">
+                            ${item.watched ? 'Mark Unwatched' : 'Mark Watched'}
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteItem(${item.id})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
