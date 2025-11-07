@@ -468,9 +468,12 @@
                     <select id="mediaType">
                         <option value="movie">Movie</option>
                         <option value="tv">TV Show</option>
+                        <option value="game">Game</option>
+                        <option value="book">Book</option>
+                        <option value="podcast">Podcast</option>
                         <option value="manual">Other (Manual)</option>
                     </select>
-                    <input type="text" id="searchInput" placeholder="Search for movies or TV shows...">
+                    <input type="text" id="searchInput" placeholder="Search for media...">
                     <button class="btn btn-small" onclick="searchMedia()">Search</button>
                 </div>
 
@@ -478,9 +481,9 @@
 
                 <!-- Manual Add Form -->
                 <div id="manualAddForm" class="manual-add" style="display: none;">
-                    <h3>Add Manually (Books, Games, Podcasts, etc.)</h3>
+                    <h3>Add Manually</h3>
                     <input type="text" id="manualTitle" placeholder="Title">
-                    <input type="text" id="manualType" placeholder="Type (e.g., Book, Game, Podcast)">
+                    <input type="text" id="manualType" placeholder="Type (e.g., Album, Documentary, Article)">
                     <textarea id="manualNotes" placeholder="Notes or description (optional)"></textarea>
                     <button class="btn" onclick="addManualItem()">Add to Watchlist</button>
                 </div>
@@ -496,6 +499,9 @@
                     <div class="filter-tab" onclick="filterWatchlist('watched')">Watched</div>
                     <div class="filter-tab" onclick="filterWatchlist('movie')">Movies</div>
                     <div class="filter-tab" onclick="filterWatchlist('tv')">TV Shows</div>
+                    <div class="filter-tab" onclick="filterWatchlist('game')">Games</div>
+                    <div class="filter-tab" onclick="filterWatchlist('book')">Books</div>
+                    <div class="filter-tab" onclick="filterWatchlist('podcast')">Podcasts</div>
                     <div class="filter-tab" onclick="filterWatchlist('other')">Other</div>
                 </div>
 
@@ -515,7 +521,8 @@
             GITHUB_OWNER: 'cranberry-sam',
             GITHUB_REPO: 'cranberry-sam.github.io',
             GITHUB_BRANCH: 'claude/shared-media-watchlist-app-011CUuMXViUKygXXmh13CmZ5',
-            TMDB_API_KEY: '1a3c65b8d1c6e0f61b4f8e7a9c3b2d5e' // Free demo key - get your own at: https://www.themoviedb.org/settings/api
+            TMDB_API_KEY: '1a3c65b8d1c6e0f61b4f8e7a9c3b2d5e', // Free demo key - get your own at: https://www.themoviedb.org/settings/api
+            RAWG_API_KEY: 'YOUR_RAWG_API_KEY_HERE' // Get from: https://rawg.io/apidocs (free, 20k requests/month)
         };
 
         const WATCHLIST_FILE = 'watchlist.json';
@@ -662,7 +669,7 @@
             }
         }
 
-        // ========== TMDB API ==========
+        // ========== MEDIA SEARCH APIs ==========
         async function searchMedia() {
             const query = document.getElementById('searchInput').value.trim();
             const mediaType = document.getElementById('mediaType').value;
@@ -673,19 +680,32 @@
             resultsContainer.innerHTML = '<div class="loading">Searching...</div>';
 
             try {
-                const response = await fetch(
-                    `https://api.themoviedb.org/3/search/${mediaType}?api_key=${CONFIG.TMDB_API_KEY}&query=${encodeURIComponent(query)}`
-                );
-                const data = await response.json();
+                let results = [];
 
-                if (data.results && data.results.length > 0) {
-                    resultsContainer.innerHTML = data.results.slice(0, 12).map(item => `
-                        <div class="search-result-item" onclick='addToWatchlist(${JSON.stringify(item).replace(/'/g, "&apos;")}, "${mediaType}")'>
-                            ${item.poster_path
-                                ? `<img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${item.title || item.name}">`
-                                : '<div style="width:100%;height:225px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">No Image</div>'
+                switch(mediaType) {
+                    case 'movie':
+                    case 'tv':
+                        results = await searchTMDB(query, mediaType);
+                        break;
+                    case 'game':
+                        results = await searchGames(query);
+                        break;
+                    case 'book':
+                        results = await searchBooks(query);
+                        break;
+                    case 'podcast':
+                        results = await searchPodcasts(query);
+                        break;
+                }
+
+                if (results && results.length > 0) {
+                    resultsContainer.innerHTML = results.map(item => `
+                        <div class="search-result-item" onclick='addToWatchlist(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                            ${item.image
+                                ? `<img src="${item.image}" alt="${item.title}">`
+                                : '<div style="width:100%;height:225px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;">No Image</div>'
                             }
-                            <div class="title">${item.title || item.name}</div>
+                            <div class="title">${item.title}</div>
                         </div>
                     `).join('');
                 } else {
@@ -693,32 +713,126 @@
                 }
             } catch (error) {
                 console.error('Error searching:', error);
-                resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Search failed</div>';
+                resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">Search failed. Check your API keys.</div>';
             }
         }
 
-        async function addToWatchlist(item, mediaType) {
-            // Get full details including watch providers
-            try {
-                const detailsResponse = await fetch(
-                    `https://api.themoviedb.org/3/${mediaType}/${item.id}?api_key=${CONFIG.TMDB_API_KEY}&append_to_response=watch/providers`
-                );
-                const details = await detailsResponse.json();
+        async function searchTMDB(query, mediaType) {
+            const response = await fetch(
+                `https://api.themoviedb.org/3/search/${mediaType}?api_key=${CONFIG.TMDB_API_KEY}&query=${encodeURIComponent(query)}`
+            );
+            const data = await response.json();
 
-                const newItem = {
+            return (data.results || []).slice(0, 12).map(item => ({
+                type: mediaType,
+                apiId: item.id,
+                title: item.title || item.name,
+                year: (item.release_date || item.first_air_date || '').substring(0, 4),
+                image: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : null,
+                overview: item.overview,
+                rawData: item
+            }));
+        }
+
+        async function searchGames(query) {
+            const response = await fetch(
+                `https://api.rawg.io/api/games?key=${CONFIG.RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=12`
+            );
+            const data = await response.json();
+
+            return (data.results || []).map(item => ({
+                type: 'game',
+                apiId: item.id,
+                title: item.name,
+                year: item.released ? item.released.substring(0, 4) : null,
+                image: item.background_image,
+                overview: `Platforms: ${(item.platforms || []).map(p => p.platform.name).slice(0, 3).join(', ')}`,
+                rating: item.rating,
+                url: `https://rawg.io/games/${item.slug}`,
+                rawData: item
+            }));
+        }
+
+        async function searchBooks(query) {
+            const response = await fetch(
+                `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=12`
+            );
+            const data = await response.json();
+
+            return (data.items || []).map(item => {
+                const volumeInfo = item.volumeInfo;
+                return {
+                    type: 'book',
+                    apiId: item.id,
+                    title: volumeInfo.title,
+                    year: volumeInfo.publishedDate ? volumeInfo.publishedDate.substring(0, 4) : null,
+                    image: volumeInfo.imageLinks?.thumbnail,
+                    overview: volumeInfo.description || `By ${(volumeInfo.authors || []).join(', ')}`,
+                    author: (volumeInfo.authors || []).join(', '),
+                    url: volumeInfo.infoLink,
+                    rawData: item
+                };
+            });
+        }
+
+        async function searchPodcasts(query) {
+            const response = await fetch(
+                `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=podcast&limit=12`
+            );
+            const data = await response.json();
+
+            return (data.results || []).map(item => ({
+                type: 'podcast',
+                apiId: item.collectionId,
+                title: item.collectionName,
+                year: null,
+                image: item.artworkUrl600 || item.artworkUrl100,
+                overview: `By ${item.artistName}`,
+                artist: item.artistName,
+                url: item.collectionViewUrl,
+                rawData: item
+            }));
+        }
+
+        async function addToWatchlist(item) {
+            try {
+                let newItem = {
                     id: Date.now(),
-                    tmdbId: item.id,
-                    title: item.title || item.name,
-                    type: mediaType,
-                    year: (item.release_date || item.first_air_date || '').substring(0, 4),
-                    poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+                    apiId: item.apiId,
+                    title: item.title,
+                    type: item.type,
+                    year: item.year,
+                    poster: item.image,
                     overview: item.overview,
                     watched: false,
                     review: null,
-                    addedDate: new Date().toISOString(),
-                    tmdbUrl: `https://www.themoviedb.org/${mediaType}/${item.id}`,
-                    whereToWatch: details['watch/providers']?.results?.US?.link || null
+                    addedDate: new Date().toISOString()
                 };
+
+                // Add type-specific metadata
+                if (item.type === 'movie' || item.type === 'tv') {
+                    // Get TMDB details for watch providers
+                    try {
+                        const detailsResponse = await fetch(
+                            `https://api.themoviedb.org/3/${item.type}/${item.apiId}?api_key=${CONFIG.TMDB_API_KEY}&append_to_response=watch/providers`
+                        );
+                        const details = await detailsResponse.json();
+                        newItem.poster = item.rawData.poster_path ? `https://image.tmdb.org/t/p/w500${item.rawData.poster_path}` : null;
+                        newItem.tmdbUrl = `https://www.themoviedb.org/${item.type}/${item.apiId}`;
+                        newItem.whereToWatch = details['watch/providers']?.results?.US?.link || null;
+                    } catch (e) {
+                        console.error('Error fetching TMDB details:', e);
+                    }
+                } else if (item.type === 'game') {
+                    newItem.url = item.url;
+                    newItem.rating = item.rating;
+                } else if (item.type === 'book') {
+                    newItem.url = item.url;
+                    newItem.author = item.author;
+                } else if (item.type === 'podcast') {
+                    newItem.url = item.url;
+                    newItem.artist = item.artist;
+                }
 
                 watchlist.unshift(newItem);
                 await saveWatchlist(`Added "${newItem.title}" to watchlist`);
@@ -818,8 +932,14 @@
                 filtered = watchlist.filter(item => item.type === 'movie');
             } else if (currentFilter === 'tv') {
                 filtered = watchlist.filter(item => item.type === 'tv');
+            } else if (currentFilter === 'game') {
+                filtered = watchlist.filter(item => item.type === 'game');
+            } else if (currentFilter === 'book') {
+                filtered = watchlist.filter(item => item.type === 'book');
+            } else if (currentFilter === 'podcast') {
+                filtered = watchlist.filter(item => item.type === 'podcast');
             } else if (currentFilter === 'other') {
-                filtered = watchlist.filter(item => item.type !== 'movie' && item.type !== 'tv');
+                filtered = watchlist.filter(item => !['movie', 'tv', 'game', 'book', 'podcast'].includes(item.type));
             }
 
             if (filtered.length === 0) {
@@ -844,14 +964,18 @@
                         <div class="item-meta">
                             ${item.type.toUpperCase()}
                             ${item.year ? ` • ${item.year}` : ''}
+                            ${item.author ? ` • ${item.author}` : ''}
+                            ${item.artist ? ` • ${item.artist}` : ''}
+                            ${item.rating ? ` • ⭐ ${item.rating}` : ''}
                             ${item.watched ? ' • ✓ Watched' : ''}
                         </div>
                         ${item.overview ? `<div class="item-overview">${item.overview}</div>` : ''}
 
-                        ${(item.tmdbUrl || item.whereToWatch) ? `
+                        ${(item.tmdbUrl || item.whereToWatch || item.url) ? `
                             <div class="item-links">
                                 ${item.tmdbUrl ? `<a href="${item.tmdbUrl}" target="_blank">View on TMDB</a>` : ''}
                                 ${item.whereToWatch ? `<a href="${item.whereToWatch}" target="_blank">Where to Watch</a>` : ''}
+                                ${item.url && !item.tmdbUrl ? `<a href="${item.url}" target="_blank">View Details</a>` : ''}
                             </div>
                         ` : ''}
 
