@@ -512,20 +512,34 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <script>
         // ========== CONFIGURATION ==========
-        // TODO: Replace these with your actual values
         const CONFIG = {
             PASSWORD: 'give me movie show',
-            GITHUB_TOKEN: 'YOUR_GITHUB_TOKEN_HERE', // Get from: https://github.com/settings/tokens
-            GITHUB_OWNER: 'cranberry-sam',
-            GITHUB_REPO: 'cranberry-sam.github.io',
-            GITHUB_BRANCH: 'claude/shared-media-watchlist-app-011CUuMXViUKygXXmh13CmZ5',
-            TMDB_API_KEY: '1a3c65b8d1c6e0f61b4f8e7a9c3b2d5e', // Free demo key - get your own at: https://www.themoviedb.org/settings/api
-            RAWG_API_KEY: 'YOUR_RAWG_API_KEY_HERE' // Get from: https://rawg.io/apidocs (free, 20k requests/month)
+            TMDB_API_KEY: 'e3cabd714830aea7a4e8ff5d7d0b7044',
+            RAWG_API_KEY: '44ba0f7cd39d4d5a89e9e69cdbf967a2',
+
+            // Firebase Configuration
+            FIREBASE: {
+                apiKey: "AIzaSyDvFCUnadbVzci6GrkXc4coybXEL-UDSww",
+                authDomain: "watchlist-app-ec3a0.firebaseapp.com",
+                projectId: "watchlist-app-ec3a0",
+                storageBucket: "watchlist-app-ec3a0.firebasestorage.app",
+                messagingSenderId: "585504841013",
+                appId: "1:585504841013:web:f04fefc27095c3054e407c",
+                measurementId: "G-4GKX86XXPJ"
+            }
         };
 
-        const WATCHLIST_FILE = 'watchlist.json';
+        // Initialize Firebase
+        firebase.initializeApp(CONFIG.FIREBASE);
+        const db = firebase.firestore();
+        const watchlistCollection = db.collection('watchlist');
+
         let watchlist = [];
         let currentFilter = 'all';
 
@@ -587,84 +601,51 @@
             });
         });
 
-        // ========== GITHUB API ==========
+        // ========== FIRESTORE DATABASE ==========
         async function loadWatchlist() {
             try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}?ref=${CONFIG.GITHUB_BRANCH}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const content = atob(data.content);
-                    watchlist = JSON.parse(content);
-                } else if (response.status === 404) {
-                    // File doesn't exist yet, create it
+                // Set up real-time listener for automatic syncing
+                watchlistCollection.orderBy('addedDate', 'desc').onSnapshot((snapshot) => {
                     watchlist = [];
-                    await saveWatchlist('Initialize watchlist');
-                } else {
-                    throw new Error(`GitHub API error: ${response.status}`);
-                }
+                    snapshot.forEach((doc) => {
+                        watchlist.push({ firestoreId: doc.id, ...doc.data() });
+                    });
+                    renderWatchlist();
+                }, (error) => {
+                    console.error('Error loading watchlist:', error);
+                    alert('Failed to load watchlist. Please check your Firebase configuration.');
+                });
             } catch (error) {
-                console.error('Error loading watchlist:', error);
+                console.error('Error setting up watchlist listener:', error);
                 watchlist = [];
+                renderWatchlist();
             }
-            renderWatchlist();
         }
 
-        async function saveWatchlist(commitMessage) {
+        async function saveItem(item) {
             try {
-                // Get current file SHA if it exists
-                let sha = null;
-                const getResponse = await fetch(
-                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}?ref=${CONFIG.GITHUB_BRANCH}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-
-                if (getResponse.ok) {
-                    const data = await getResponse.json();
-                    sha = data.sha;
+                if (item.firestoreId) {
+                    // Update existing item
+                    await watchlistCollection.doc(item.firestoreId).update(item);
+                } else {
+                    // Add new item
+                    await watchlistCollection.add(item);
                 }
-
-                // Save the file
-                const content = btoa(JSON.stringify(watchlist, null, 2));
-                const response = await fetch(
-                    `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${WATCHLIST_FILE}`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: commitMessage,
-                            content: content,
-                            branch: CONFIG.GITHUB_BRANCH,
-                            ...(sha && { sha })
-                        })
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Failed to save: ${response.status}`);
-                }
-
                 return true;
             } catch (error) {
-                console.error('Error saving watchlist:', error);
-                alert('Failed to save changes. Please check your GitHub token and try again.');
+                console.error('Error saving item:', error);
+                alert('Failed to save changes. Please check your Firebase configuration.');
+                return false;
+            }
+        }
+
+        async function deleteItemFromDb(firestoreId) {
+            try {
+                await watchlistCollection.doc(firestoreId).delete();
+                return true;
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                alert('Failed to delete item.');
                 return false;
             }
         }
@@ -797,7 +778,6 @@
         async function addToWatchlist(item) {
             try {
                 let newItem = {
-                    id: Date.now(),
                     apiId: item.apiId,
                     title: item.title,
                     type: item.type,
@@ -834,9 +814,7 @@
                     newItem.artist = item.artist;
                 }
 
-                watchlist.unshift(newItem);
-                await saveWatchlist(`Added "${newItem.title}" to watchlist`);
-                renderWatchlist();
+                await saveItem(newItem);
                 document.getElementById('searchResults').innerHTML = '';
                 document.getElementById('searchInput').value = '';
             } catch (error) {
@@ -856,7 +834,6 @@
             }
 
             const newItem = {
-                id: Date.now(),
                 title: title,
                 type: type || 'other',
                 overview: notes,
@@ -866,9 +843,7 @@
                 manual: true
             };
 
-            watchlist.unshift(newItem);
-            await saveWatchlist(`Added "${newItem.title}" to watchlist`);
-            renderWatchlist();
+            await saveItem(newItem);
 
             // Clear form
             document.getElementById('manualTitle').value = '';
@@ -877,33 +852,29 @@
         }
 
         // ========== WATCHLIST MANAGEMENT ==========
-        async function toggleWatched(id) {
-            const item = watchlist.find(i => i.id === id);
+        async function toggleWatched(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
             if (item) {
                 item.watched = !item.watched;
                 item.watchedDate = item.watched ? new Date().toISOString() : null;
-                await saveWatchlist(`Marked "${item.title}" as ${item.watched ? 'watched' : 'unwatched'}`);
-                renderWatchlist();
+                await saveItem(item);
             }
         }
 
-        async function saveReview(id) {
-            const item = watchlist.find(i => i.id === id);
-            const review = document.getElementById(`review-${id}`).value.trim();
+        async function saveReview(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
+            const review = document.getElementById(`review-${firestoreId}`).value.trim();
 
             if (item && review) {
                 item.review = review;
-                await saveWatchlist(`Added review for "${item.title}"`);
-                renderWatchlist();
+                await saveItem(item);
             }
         }
 
-        async function deleteItem(id) {
-            const item = watchlist.find(i => i.id === id);
+        async function deleteItem(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
             if (item && confirm(`Remove "${item.title}" from watchlist?`)) {
-                watchlist = watchlist.filter(i => i.id !== id);
-                await saveWatchlist(`Removed "${item.title}" from watchlist`);
-                renderWatchlist();
+                await deleteItemFromDb(firestoreId);
             }
         }
 
@@ -986,8 +957,8 @@
                                     : `
                                         <div><strong>Add a review:</strong></div>
                                         <div class="review-form">
-                                            <textarea id="review-${item.id}" placeholder="What did you think?"></textarea>
-                                            <button class="btn btn-small" style="margin-top: 8px;" onclick="saveReview(${item.id})">Save Review</button>
+                                            <textarea id="review-${item.firestoreId}" placeholder="What did you think?"></textarea>
+                                            <button class="btn btn-small" style="margin-top: 8px;" onclick="saveReview('${item.firestoreId}')">Save Review</button>
                                         </div>
                                     `
                                 }
@@ -996,10 +967,10 @@
                     </div>
 
                     <div class="item-actions">
-                        <button class="btn-action btn-watched" onclick="toggleWatched(${item.id})">
+                        <button class="btn-action btn-watched" onclick="toggleWatched('${item.firestoreId}')">
                             ${item.watched ? 'Mark Unwatched' : 'Mark Watched'}
                         </button>
-                        <button class="btn-action btn-delete" onclick="deleteItem(${item.id})">Remove</button>
+                        <button class="btn-action btn-delete" onclick="deleteItem('${item.firestoreId}')">Remove</button>
                     </div>
                 </div>
             `).join('');
