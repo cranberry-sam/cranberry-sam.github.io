@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Watchlist</title>
     <style>
+        :root {
+            /* Primary Colors */
+            --color-bg-light: #ffccbc;
+            --color-bg-gradient-start: #ffccbc;
+            --color-bg-gradient-end: #ffd4c4;
+
+            --color-dark-green: #1b5e20;
+            --color-medium-green: #1b5e20;
+            --color-light-green: #1b5e20;
+
+            --color-pink: #ffccbc;
+            --color-light-pink: #ffccbc;
+
+            /* Accent Colors */
+            --color-teal: #26a69a;
+            --color-teal-dark: #1b5e20;
+
+            --color-orange: #ffb74d;
+            --color-orange-dark: #ffa726;
+
+            /* Neutral Colors */
+            --color-white: #ffffff;
+            --color-light-gray: #f8f9fa;
+            --color-border: #e0e0e0;
+
+            /* Semantic Colors */
+            --color-error: #c62828;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +42,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-bg-gradient-start) 0%, var(--color-bg-gradient-end) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -32,7 +61,7 @@
         }
 
         .login-box {
-            background: white;
+            background: var(--color-white);
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -42,7 +71,7 @@
         }
 
         .login-box h1 {
-            color: #667eea;
+            color: var(--color-dark-green);
             margin-bottom: 30px;
             font-size: 2em;
         }
@@ -50,7 +79,7 @@
         .login-box input {
             width: 100%;
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--color-teal);
             border-radius: 10px;
             font-size: 16px;
             margin-bottom: 20px;
@@ -59,12 +88,12 @@
 
         .login-box input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--color-dark-green);
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--color-dark-green) 0%, var(--color-medium-green) 100%);
+            color: var(--color-pink);
             border: none;
             padding: 15px 30px;
             border-radius: 10px;
@@ -77,7 +106,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(27, 94, 32, 0.4);
         }
 
         .btn:active {
@@ -85,7 +114,7 @@
         }
 
         .btn-secondary {
-            background: #6c757d;
+            background: var(--color-orange);
             margin-top: 10px;
         }
 
@@ -96,7 +125,7 @@
         }
 
         .error {
-            color: #e74c3c;
+            color: var(--color-error);
             margin-top: 10px;
             font-size: 14px;
         }
@@ -111,7 +140,7 @@
         }
 
         .header {
-            background: white;
+            background: var(--color-white);
             padding: 20px 30px;
             border-radius: 20px;
             margin-bottom: 30px;
@@ -124,12 +153,12 @@
         }
 
         .header h1 {
-            color: #667eea;
+            color: var(--color-dark-green);
             font-size: 2em;
         }
 
         .search-container {
-            background: white;
+            background: var(--color-white);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
@@ -146,18 +175,23 @@
         .search-box input {
             flex: 1;
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--color-teal);
             border-radius: 10px;
             font-size: 16px;
             min-width: 200px;
         }
 
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--color-dark-green);
+        }
+
         .search-box select {
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--color-teal);
             border-radius: 10px;
             font-size: 16px;
-            background: white;
+            background: var(--color-white);
             cursor: pointer;
         }
 
@@ -175,13 +209,13 @@
             border-radius: 10px;
             overflow: hidden;
             transition: transform 0.2s;
-            background: #f8f9fa;
+            background: var(--color-light-gray);
             border: 2px solid transparent;
         }
 
         .search-result-item:hover {
             transform: scale(1.05);
-            border-color: #667eea;
+            border-color: var(--color-orange);
         }
 
         .search-result-item img {
@@ -205,17 +239,22 @@
 
         .manual-add h3 {
             margin-bottom: 15px;
-            color: #495057;
+            color: var(--color-dark-green);
         }
 
         .manual-add input, .manual-add textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--color-teal);
             border-radius: 10px;
             font-size: 14px;
             margin-bottom: 10px;
             font-family: inherit;
+        }
+
+        .manual-add input:focus, .manual-add textarea:focus {
+            outline: none;
+            border-color: var(--color-dark-green);
         }
 
         .manual-add textarea {
@@ -224,37 +263,122 @@
         }
 
         .watchlist-container {
-            background: white;
+            background: var(--color-white);
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .filter-tabs {
+        .filter-controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            align-items: flex-start;
         }
 
-        .filter-tab {
-            padding: 10px 20px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
             font-weight: 600;
+            color: var(--color-dark-green);
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .filter-tab:hover {
-            border-color: #667eea;
+        .filter-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--color-teal);
+            border-radius: 10px;
+            font-size: 16px;
+            background: var(--color-white);
+            cursor: pointer;
+            font-weight: 600;
+            transition: border-color 0.3s;
+            color: var(--color-dark-green);
         }
 
-        .filter-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
+        .filter-select:hover {
+            border-color: var(--color-orange);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--color-dark-green);
+        }
+
+        .genre-select-container {
+            position: relative;
+        }
+
+        .genre-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-white);
+            border: 2px solid var(--color-teal);
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(255, 179, 217, 0.3);
+            display: none;
+        }
+
+        .genre-dropdown.active {
+            display: block;
+        }
+
+        .genre-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .genre-option:hover {
+            background: var(--color-light-gray);
+        }
+
+        .genre-option input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .selected-genres {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .genre-tag {
+            background: linear-gradient(135deg, var(--color-dark-green) 0%, var(--color-medium-green) 100%);
+            color: var(--color-pink);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .genre-tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .genre-tag-remove:hover {
+            opacity: 0.7;
         }
 
         .watchlist-items {
@@ -263,18 +387,13 @@
         }
 
         .watchlist-item {
-            background: #f8f9fa;
+            background: var(--color-light-gray);
             border-radius: 15px;
             padding: 20px;
             display: grid;
             grid-template-columns: auto 1fr auto;
             gap: 20px;
             align-items: start;
-            transition: transform 0.2s;
-        }
-
-        .watchlist-item:hover {
-            transform: translateX(5px);
         }
 
         .watchlist-item.watched {
@@ -295,18 +414,34 @@
         .item-title {
             font-size: 1.3em;
             font-weight: 700;
-            color: #2d3748;
+            color: var(--color-dark-green);
             margin-bottom: 5px;
         }
 
         .item-meta {
-            color: #718096;
+            color: var(--color-medium-green);
             font-size: 0.9em;
             margin-bottom: 10px;
         }
 
+        .item-genres {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .genre-badge {
+            background: var(--color-bg-light);
+            color: var(--color-dark-green);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
         .item-overview {
-            color: #4a5568;
+            color: var(--color-medium-green);
             line-height: 1.5;
             margin-bottom: 10px;
         }
@@ -319,7 +454,7 @@
         }
 
         .item-links a {
-            color: #667eea;
+            color: var(--color-teal);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9em;
@@ -336,22 +471,84 @@
         }
 
         .review-text {
-            background: white;
+            background: var(--color-white);
             padding: 12px;
             border-radius: 8px;
             margin-top: 8px;
             font-style: italic;
-            color: #4a5568;
+            color: var(--color-medium-green);
         }
 
         .review-form textarea {
             width: 100%;
             padding: 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--color-teal);
             border-radius: 8px;
             margin-top: 8px;
             font-family: inherit;
             min-height: 60px;
+        }
+
+        .review-form textarea:focus {
+            outline: none;
+            border-color: var(--color-dark-green);
+        }
+
+        .ratings-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--color-light-gray);
+            border-radius: 10px;
+        }
+
+        .rating-input-group {
+            margin-bottom: 15px;
+        }
+
+        .rating-label {
+            font-weight: 600;
+            color: var(--color-dark-green);
+            margin-bottom: 8px;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rating-row input {
+            width: 60px;
+            padding: 6px 10px;
+            border: 2px solid var(--color-teal);
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .rating-row input:focus {
+            outline: none;
+            border-color: var(--color-dark-green);
+        }
+
+        .ratings-section .btn-small {
+            margin-top: 10px;
+        }
+
+        .ratings-section .btn-small:hover {
+            transform: none;
+        }
+
+        .stars-display {
+            color: var(--color-orange);
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .rating-number {
+            color: var(--color-medium-green);
+            font-size: 14px;
+            margin-left: 8px;
         }
 
         .item-actions {
@@ -372,47 +569,48 @@
         }
 
         .btn-watched {
-            background: #48bb78;
-            color: white;
+            background: var(--color-teal);
+            color: var(--color-white);
         }
 
         .btn-watched:hover {
-            background: #38a169;
+            background: var(--color-teal-dark);
         }
 
         .btn-review {
-            background: #667eea;
-            color: white;
+            background: var(--color-dark-green);
+            color: var(--color-pink);
         }
 
         .btn-review:hover {
-            background: #5568d3;
+            background: var(--color-medium-green);
         }
 
         .btn-delete {
-            background: #e74c3c;
-            color: white;
+            background: var(--color-orange);
+            color: var(--color-white);
         }
 
         .btn-delete:hover {
-            background: #c0392b;
+            background: var(--color-orange-dark);
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #718096;
+            color: var(--color-medium-green);
         }
 
         .empty-state h3 {
             font-size: 1.5em;
             margin-bottom: 10px;
+            color: var(--color-dark-green);
         }
 
         .loading {
             text-align: center;
             padding: 20px;
-            color: #667eea;
+            color: var(--color-dark-green);
             font-weight: 600;
         }
 
@@ -465,14 +663,12 @@
                 <h2 style="margin-bottom: 20px; color: #2d3748;">Add New Item</h2>
 
                 <div class="search-box">
-                    <select id="mediaType">
-                        <option value="movie">Movie</option>
-                        <option value="tv">TV Show</option>
-                        <option value="game">Game</option>
-                        <option value="book">Book</option>
-                        <option value="podcast">Podcast</option>
-                        <option value="manual">Other (Manual)</option>
-                    </select>
+                    <div class="genre-select-container" style="min-width: 150px;">
+                        <button id="searchMediaTypeButton" class="filter-select" onclick="toggleSearchMediaTypeDropdown(event)" style="text-align: left;">
+                            Movie
+                        </button>
+                        <div id="searchMediaTypeDropdown" class="genre-dropdown"></div>
+                    </div>
                     <input type="text" id="searchInput" placeholder="Search for media...">
                     <button class="btn btn-small" onclick="searchMedia()">Search</button>
                 </div>
@@ -493,16 +689,27 @@
             <div class="watchlist-container">
                 <h2 style="margin-bottom: 20px; color: #2d3748;">My Watchlist</h2>
 
-                <div class="filter-tabs">
-                    <div class="filter-tab active" onclick="filterWatchlist('all')">All</div>
-                    <div class="filter-tab" onclick="filterWatchlist('to-watch')">To Watch</div>
-                    <div class="filter-tab" onclick="filterWatchlist('watched')">Watched</div>
-                    <div class="filter-tab" onclick="filterWatchlist('movie')">Movies</div>
-                    <div class="filter-tab" onclick="filterWatchlist('tv')">TV Shows</div>
-                    <div class="filter-tab" onclick="filterWatchlist('game')">Games</div>
-                    <div class="filter-tab" onclick="filterWatchlist('book')">Books</div>
-                    <div class="filter-tab" onclick="filterWatchlist('podcast')">Podcasts</div>
-                    <div class="filter-tab" onclick="filterWatchlist('other')">Other</div>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <div class="filter-label">Filter by:</div>
+                        <div class="genre-select-container">
+                            <button id="mediaTypeFilterButton" class="filter-select" onclick="toggleMediaTypeDropdown()" style="text-align: left;">
+                                All
+                            </button>
+                            <div id="mediaTypeDropdown" class="genre-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Genre:</div>
+                        <div class="genre-select-container">
+                            <button id="genreFilterButton" class="filter-select" onclick="toggleGenreDropdown(event)" style="text-align: left;">
+                                Select genres...
+                            </button>
+                            <div id="genreDropdown" class="genre-dropdown"></div>
+                            <div id="selectedGenresDisplay" class="selected-genres"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="watchlistItems" class="watchlist-items">
@@ -542,6 +749,104 @@
 
         let watchlist = [];
         let currentFilter = 'all';
+        let selectedGenres = [];
+        let genreMap = { movie: {}, tv: {} };
+
+        // ========== GENRE MANAGEMENT ==========
+        async function loadGenres() {
+            try {
+                // Fetch movie genres
+                const movieResponse = await fetch(
+                    `https://api.themoviedb.org/3/genre/movie/list?api_key=${CONFIG.TMDB_API_KEY}`
+                );
+                const movieData = await movieResponse.json();
+                movieData.genres.forEach(g => {
+                    genreMap.movie[g.id] = g.name;
+                });
+
+                // Fetch TV genres
+                const tvResponse = await fetch(
+                    `https://api.themoviedb.org/3/genre/tv/list?api_key=${CONFIG.TMDB_API_KEY}`
+                );
+                const tvData = await tvResponse.json();
+                tvData.genres.forEach(g => {
+                    genreMap.tv[g.id] = g.name;
+                });
+            } catch (error) {
+                console.error('Error loading genres:', error);
+            }
+        }
+
+        async function migrateExistingItems() {
+            console.log('Starting genre migration...');
+            let updateCount = 0;
+            let errorCount = 0;
+
+            for (const item of watchlist) {
+                // Skip if item already has genres or is not a movie/TV show
+                if ((item.genres && item.genres.length > 0) || (item.type !== 'movie' && item.type !== 'tv')) {
+                    continue;
+                }
+
+                // Skip if no API ID
+                if (!item.apiId) {
+                    continue;
+                }
+
+                try {
+                    // Fetch details from TMDB
+                    const response = await fetch(
+                        `https://api.themoviedb.org/3/${item.type}/${item.apiId}?api_key=${CONFIG.TMDB_API_KEY}`
+                    );
+                    const details = await response.json();
+
+                    if (details.genres && details.genres.length > 0) {
+                        item.genres = details.genres.map(g => g.name);
+                        await saveItem(item);
+                        updateCount++;
+                        console.log(`Updated genres for: ${item.title}`);
+                    }
+
+                    // Small delay to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 250));
+                } catch (error) {
+                    console.error(`Error updating genres for ${item.title}:`, error);
+                    errorCount++;
+                }
+            }
+
+            console.log(`Migration complete! Updated ${updateCount} items. Errors: ${errorCount}`);
+            alert(`Genre migration complete!\nUpdated: ${updateCount} items\nErrors: ${errorCount}`);
+        }
+
+        async function autoMigrateIfNeeded() {
+            // Check if migration has already been run
+            const migrated = localStorage.getItem('genreMigrationComplete');
+            if (migrated === 'true') {
+                return;
+            }
+
+            // Check if any movies/TV shows are missing genres
+            const needsMigration = watchlist.some(item =>
+                (item.type === 'movie' || item.type === 'tv') &&
+                item.apiId &&
+                (!item.genres || item.genres.length === 0)
+            );
+
+            if (needsMigration) {
+                const shouldMigrate = confirm(
+                    'Would you like to automatically add genre information to your existing movies and TV shows?\n\n' +
+                    'This will fetch genre data from TMDB for all items. It may take a minute.'
+                );
+
+                if (shouldMigrate) {
+                    await migrateExistingItems();
+                    localStorage.setItem('genreMigrationComplete', 'true');
+                }
+            } else {
+                localStorage.setItem('genreMigrationComplete', 'true');
+            }
+        }
 
         // ========== LOGIN ==========
         function login() {
@@ -559,9 +864,10 @@
             location.reload();
         }
 
-        function showApp() {
+        async function showApp() {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('appPage').classList.add('active');
+            await loadGenres();
             loadWatchlist();
         }
 
@@ -585,32 +891,26 @@
                     if (e.key === 'Enter') searchMedia();
                 });
             }
-
-            // Show manual form when "Other" is selected
-            document.getElementById('mediaType').addEventListener('change', (e) => {
-                const manualForm = document.getElementById('manualAddForm');
-                const searchBox = document.getElementById('searchInput').parentElement;
-                if (e.target.value === 'manual') {
-                    manualForm.style.display = 'block';
-                    searchBox.style.display = 'none';
-                    document.getElementById('searchResults').innerHTML = '';
-                } else {
-                    manualForm.style.display = 'none';
-                    searchBox.style.display = 'flex';
-                }
-            });
         });
 
         // ========== FIRESTORE DATABASE ==========
+        let isFirstLoad = true;
+
         async function loadWatchlist() {
             try {
                 // Set up real-time listener for automatic syncing
-                watchlistCollection.orderBy('addedDate', 'desc').onSnapshot((snapshot) => {
+                watchlistCollection.orderBy('addedDate', 'desc').onSnapshot(async (snapshot) => {
                     watchlist = [];
                     snapshot.forEach((doc) => {
                         watchlist.push({ firestoreId: doc.id, ...doc.data() });
                     });
                     renderWatchlist();
+
+                    // Run migration check only on first load
+                    if (isFirstLoad) {
+                        isFirstLoad = false;
+                        await autoMigrateIfNeeded();
+                    }
                 }, (error) => {
                     console.error('Error loading watchlist:', error);
                     alert('Failed to load watchlist. Please check your Firebase configuration.');
@@ -653,7 +953,7 @@
         // ========== MEDIA SEARCH APIs ==========
         async function searchMedia() {
             const query = document.getElementById('searchInput').value.trim();
-            const mediaType = document.getElementById('mediaType').value;
+            const mediaType = currentSearchMediaType;
 
             if (!query) return;
 
@@ -704,15 +1004,21 @@
             );
             const data = await response.json();
 
-            return (data.results || []).slice(0, 12).map(item => ({
-                type: mediaType,
-                apiId: item.id,
-                title: item.title || item.name,
-                year: (item.release_date || item.first_air_date || '').substring(0, 4),
-                image: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : null,
-                overview: item.overview,
-                rawData: item
-            }));
+            return (data.results || []).slice(0, 12).map(item => {
+                // Convert genre IDs to genre names
+                const genres = (item.genre_ids || []).map(id => genreMap[mediaType][id]).filter(Boolean);
+
+                return {
+                    type: mediaType,
+                    apiId: item.id,
+                    title: item.title || item.name,
+                    year: (item.release_date || item.first_air_date || '').substring(0, 4),
+                    image: item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : null,
+                    overview: item.overview,
+                    genres: genres,
+                    rawData: item
+                };
+            });
         }
 
         async function searchGames(query) {
@@ -784,8 +1090,11 @@
                     year: item.year,
                     poster: item.image,
                     overview: item.overview,
+                    genres: item.genres || [],
                     watched: false,
                     review: null,
+                    samRating: null,
+                    leslieRating: null,
                     addedDate: new Date().toISOString()
                 };
 
@@ -839,6 +1148,8 @@
                 overview: notes,
                 watched: false,
                 review: null,
+                samRating: null,
+                leslieRating: null,
                 addedDate: new Date().toISOString(),
                 manual: true
             };
@@ -871,6 +1182,65 @@
             }
         }
 
+        async function saveRatings(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
+            if (!item) return;
+
+            const samRatingInput = document.getElementById(`sam-rating-${firestoreId}`).value.trim();
+            const leslieRatingInput = document.getElementById(`leslie-rating-${firestoreId}`).value.trim();
+
+            const samRating = parseFloat(samRatingInput);
+            const leslieRating = parseFloat(leslieRatingInput);
+
+            // Validate ratings: must be 0-10 in 0.5 increments
+            item.samRating = (!isNaN(samRating) && samRating >= 0 && samRating <= 10 && (samRating * 2) % 1 === 0) ? samRating : null;
+            item.leslieRating = (!isNaN(leslieRating) && leslieRating >= 0 && leslieRating <= 10 && (leslieRating * 2) % 1 === 0) ? leslieRating : null;
+
+            await saveItem(item);
+            renderWatchlist();
+        }
+
+        function renderStars(rating) {
+            if (rating === null || rating === undefined || rating === '') {
+                return '<span class="rating-number">Not rated yet</span>';
+            }
+
+            const fullCircles = Math.floor(rating);
+            const hasHalfCircle = (rating % 1) !== 0;
+            const emptyCircles = 10 - fullCircles - (hasHalfCircle ? 1 : 0);
+
+            let starsHtml = '●'.repeat(fullCircles);
+            if (hasHalfCircle) {
+                starsHtml += '◐';
+            }
+            starsHtml += '○'.repeat(emptyCircles);
+
+            return `<span class="stars-display">${starsHtml}</span><span class="rating-number">(${rating}/10)</span>`;
+        }
+
+        function renderRatingInput(firestoreId, person, personLabel, currentRating) {
+            const displayValue = currentRating !== null && currentRating !== undefined ? currentRating : '';
+            return `
+                <div class="rating-input-group">
+                    <div class="rating-label">${personLabel}'s Rating:</div>
+                    <div class="rating-row">
+                        <input
+                            type="number"
+                            id="${person}-rating-${firestoreId}"
+                            value="${displayValue}"
+                            min="0"
+                            max="10"
+                            step="0.5"
+                            inputmode="decimal"
+                            placeholder="0-10"
+                            onkeypress="if(event.key === 'Enter') saveRatings('${firestoreId}')"
+                        >
+                        ${renderStars(currentRating)}
+                    </div>
+                </div>
+            `;
+        }
+
         async function deleteItem(firestoreId) {
             const item = watchlist.find(i => i.firestoreId === firestoreId);
             if (item && confirm(`Remove "${item.title}" from watchlist?`)) {
@@ -878,39 +1248,242 @@
             }
         }
 
-        function filterWatchlist(filter) {
-            currentFilter = filter;
+        // ========== FILTER FUNCTIONS ==========
+        const mediaTypeOptions = [
+            { value: 'all', label: 'All' },
+            { value: 'movie', label: 'Movies' },
+            { value: 'tv', label: 'TV Shows' },
+            { value: 'game', label: 'Games' },
+            { value: 'book', label: 'Books' },
+            { value: 'podcast', label: 'Podcasts' },
+            { value: 'other', label: 'Other' }
+        ];
 
-            // Update active tab
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
+        const searchMediaTypeOptions = [
+            { value: 'movie', label: 'Movie' },
+            { value: 'tv', label: 'TV Show' },
+            { value: 'game', label: 'Game' },
+            { value: 'book', label: 'Book' },
+            { value: 'podcast', label: 'Podcast' },
+            { value: 'manual', label: 'Other (Manual)' }
+        ];
+
+        const specialFilters = ['Watched', 'Unwatched'];
+
+        let currentSearchMediaType = 'movie';
+
+        function updateMediaTypeDropdown() {
+            const dropdown = document.getElementById('mediaTypeDropdown');
+
+            dropdown.innerHTML = mediaTypeOptions.map(option => `
+                <div class="genre-option" onclick="selectMediaType('${option.value}')">
+                    ${option.value === currentFilter ? '✓ ' : ''}${option.label}
+                </div>
+            `).join('');
+        }
+
+        function toggleMediaTypeDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('mediaTypeDropdown');
+            dropdown.classList.toggle('active');
+            updateMediaTypeDropdown();
+        }
+
+        function selectMediaType(value) {
+            currentFilter = value;
+            const button = document.getElementById('mediaTypeFilterButton');
+            const option = mediaTypeOptions.find(opt => opt.value === value);
+            button.textContent = option ? option.label : 'All';
+
+            const dropdown = document.getElementById('mediaTypeDropdown');
+            dropdown.classList.remove('active');
 
             renderWatchlist();
         }
+
+        function updateSearchMediaTypeDropdown() {
+            const dropdown = document.getElementById('searchMediaTypeDropdown');
+
+            dropdown.innerHTML = searchMediaTypeOptions.map(option => `
+                <div class="genre-option" onclick="selectSearchMediaType('${option.value}')">
+                    ${option.value === currentSearchMediaType ? '✓ ' : ''}${option.label}
+                </div>
+            `).join('');
+        }
+
+        function toggleSearchMediaTypeDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('searchMediaTypeDropdown');
+            dropdown.classList.toggle('active');
+            updateSearchMediaTypeDropdown();
+        }
+
+        function selectSearchMediaType(value) {
+            currentSearchMediaType = value;
+            const button = document.getElementById('searchMediaTypeButton');
+            const option = searchMediaTypeOptions.find(opt => opt.value === value);
+            button.textContent = option ? option.label : 'Movie';
+
+            const dropdown = document.getElementById('searchMediaTypeDropdown');
+            dropdown.classList.remove('active');
+
+            // Handle manual mode
+            const manualForm = document.getElementById('manualAddForm');
+            const searchBox = document.getElementById('searchInput').parentElement;
+            if (value === 'manual') {
+                manualForm.style.display = 'block';
+                searchBox.style.display = 'none';
+                document.getElementById('searchResults').innerHTML = '';
+            } else {
+                manualForm.style.display = 'none';
+                searchBox.style.display = 'flex';
+            }
+        }
+
+        function getAllGenres() {
+            const genresSet = new Set();
+            watchlist.forEach(item => {
+                if (item.genres && Array.isArray(item.genres)) {
+                    item.genres.forEach(genre => genresSet.add(genre));
+                }
+            });
+            return Array.from(genresSet).sort();
+        }
+
+        function updateGenreDropdown() {
+            const allGenres = getAllGenres();
+            const dropdown = document.getElementById('genreDropdown');
+
+            let options = [];
+
+            // Add special filters first
+            options.push(...specialFilters.map(filter => `
+                <div class="genre-option" onclick="toggleGenre('${filter}'); event.stopPropagation();">
+                    <input type="checkbox" id="genre-${filter.replace(/[^a-zA-Z0-9]/g, '-')}"
+                           ${selectedGenres.includes(filter) ? 'checked' : ''}>
+                    <label>${filter}</label>
+                </div>
+            `));
+
+            // Add separator if there are genres
+            if (allGenres.length > 0) {
+                options.push('<div style="border-top: 2px solid #e0e0e0; margin: 5px 0;"></div>');
+            }
+
+            // Add genre filters
+            options.push(...allGenres.map(genre => `
+                <div class="genre-option" onclick="toggleGenre('${genre.replace(/'/g, "\\'")}'); event.stopPropagation();">
+                    <input type="checkbox" id="genre-${genre.replace(/[^a-zA-Z0-9]/g, '-')}"
+                           ${selectedGenres.includes(genre) ? 'checked' : ''}>
+                    <label>${genre}</label>
+                </div>
+            `));
+
+            dropdown.innerHTML = options.join('');
+        }
+
+        function toggleGenreDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('genreDropdown');
+            dropdown.classList.toggle('active');
+            updateGenreDropdown();
+        }
+
+        function toggleGenre(genre) {
+            const index = selectedGenres.indexOf(genre);
+            if (index > -1) {
+                selectedGenres.splice(index, 1);
+            } else {
+                selectedGenres.push(genre);
+            }
+            updateSelectedGenresDisplay();
+            updateGenreDropdown();
+            renderWatchlist();
+        }
+
+        function removeGenre(genre) {
+            const index = selectedGenres.indexOf(genre);
+            if (index > -1) {
+                selectedGenres.splice(index, 1);
+            }
+            updateSelectedGenresDisplay();
+            updateGenreDropdown();
+            renderWatchlist();
+        }
+
+        function updateSelectedGenresDisplay() {
+            const display = document.getElementById('selectedGenresDisplay');
+            if (selectedGenres.length === 0) {
+                display.innerHTML = '';
+                return;
+            }
+
+            display.innerHTML = selectedGenres.map(genre => `
+                <div class="genre-tag">
+                    ${genre}
+                    <span class="genre-tag-remove" onclick="removeGenre('${genre.replace(/'/g, "\\'")}')">×</span>
+                </div>
+            `).join('');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            const genreDropdown = document.getElementById('genreDropdown');
+            const genreButton = document.getElementById('genreFilterButton');
+            if (genreDropdown && genreButton && !genreDropdown.contains(e.target) && !genreButton.contains(e.target)) {
+                genreDropdown.classList.remove('active');
+            }
+
+            const mediaTypeDropdown = document.getElementById('mediaTypeDropdown');
+            const mediaTypeButton = document.getElementById('mediaTypeFilterButton');
+            if (mediaTypeDropdown && mediaTypeButton && !mediaTypeDropdown.contains(e.target) && !mediaTypeButton.contains(e.target)) {
+                mediaTypeDropdown.classList.remove('active');
+            }
+
+            const searchMediaTypeDropdown = document.getElementById('searchMediaTypeDropdown');
+            const searchMediaTypeButton = document.getElementById('searchMediaTypeButton');
+            if (searchMediaTypeDropdown && searchMediaTypeButton && !searchMediaTypeDropdown.contains(e.target) && !searchMediaTypeButton.contains(e.target)) {
+                searchMediaTypeDropdown.classList.remove('active');
+            }
+        });
 
         function renderWatchlist() {
             const container = document.getElementById('watchlistItems');
 
             let filtered = watchlist;
 
-            if (currentFilter === 'to-watch') {
-                filtered = watchlist.filter(item => !item.watched);
-            } else if (currentFilter === 'watched') {
-                filtered = watchlist.filter(item => item.watched);
-            } else if (currentFilter === 'movie') {
-                filtered = watchlist.filter(item => item.type === 'movie');
+            // Apply media type filter
+            if (currentFilter === 'movie') {
+                filtered = filtered.filter(item => item.type === 'movie');
             } else if (currentFilter === 'tv') {
-                filtered = watchlist.filter(item => item.type === 'tv');
+                filtered = filtered.filter(item => item.type === 'tv');
             } else if (currentFilter === 'game') {
-                filtered = watchlist.filter(item => item.type === 'game');
+                filtered = filtered.filter(item => item.type === 'game');
             } else if (currentFilter === 'book') {
-                filtered = watchlist.filter(item => item.type === 'book');
+                filtered = filtered.filter(item => item.type === 'book');
             } else if (currentFilter === 'podcast') {
-                filtered = watchlist.filter(item => item.type === 'podcast');
+                filtered = filtered.filter(item => item.type === 'podcast');
             } else if (currentFilter === 'other') {
-                filtered = watchlist.filter(item => !['movie', 'tv', 'game', 'book', 'podcast'].includes(item.type));
+                filtered = filtered.filter(item => !['movie', 'tv', 'game', 'book', 'podcast'].includes(item.type));
+            }
+
+            // Apply genre and special filters (show items matching ANY selected filter)
+            if (selectedGenres.length > 0) {
+                filtered = filtered.filter(item => {
+                    // Check special filters first
+                    if (selectedGenres.includes('Watched') && item.watched) return true;
+                    if (selectedGenres.includes('Unwatched') && !item.watched) return true;
+
+                    // Then check genre filters
+                    if (item.genres && Array.isArray(item.genres)) {
+                        const regularGenres = selectedGenres.filter(g => !specialFilters.includes(g));
+                        if (regularGenres.length > 0) {
+                            return item.genres.some(genre => regularGenres.includes(genre));
+                        }
+                    }
+
+                    return false;
+                });
             }
 
             if (filtered.length === 0) {
@@ -940,6 +1513,11 @@
                             ${item.rating ? ` • ⭐ ${item.rating}` : ''}
                             ${item.watched ? ' • ✓ Watched' : ''}
                         </div>
+                        ${item.genres && item.genres.length > 0 ? `
+                            <div class="item-genres">
+                                ${item.genres.map(genre => `<span class="genre-badge">${genre}</span>`).join('')}
+                            </div>
+                        ` : ''}
                         ${item.overview ? `<div class="item-overview">${item.overview}</div>` : ''}
 
                         ${(item.tmdbUrl || item.whereToWatch || item.url) ? `
@@ -949,6 +1527,13 @@
                                 ${item.url && !item.tmdbUrl ? `<a href="${item.url}" target="_blank">View Details</a>` : ''}
                             </div>
                         ` : ''}
+
+                        <!-- Ratings Section -->
+                        <div class="ratings-section">
+                            ${renderRatingInput(item.firestoreId, 'sam', 'Sam', item.samRating)}
+                            ${renderRatingInput(item.firestoreId, 'leslie', 'Leslie', item.leslieRating)}
+                            <button class="btn btn-small" onclick="saveRatings('${item.firestoreId}')">Save Ratings</button>
+                        </div>
 
                         ${item.watched ? `
                             <div class="review-section">
