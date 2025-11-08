@@ -6,32 +6,31 @@
     <title>Our Watchlist</title>
     <style>
         :root {
-            /* Primary Colors */
-            --color-bg-light: #ffccbc;
-            --color-bg-gradient-start: #ffccbc;
-            --color-bg-gradient-end: #ffd4c4;
+            /* Light Mode Colors */
+            --color-bg: #ffccbc;
+            --color-text: #1a1a1a;
+            --color-text-secondary: #4a4a4a;
+            --color-button: #07450b;
+            --color-accent: #ffccbc;
+            --color-surface: #ffffff;
+            --color-surface-alt: #f5f5f5;
+            --color-border: #d0d0d0;
+            --color-error: #c54034;
+        }
 
-            --color-dark-green: #1b5e20;
-            --color-medium-green: #1b5e20;
-            --color-light-green: #1b5e20;
-
-            --color-pink: #ffccbc;
-            --color-light-pink: #ffccbc;
-
-            /* Accent Colors */
-            --color-teal: #26a69a;
-            --color-teal-dark: #1b5e20;
-
-            --color-orange: #ffb74d;
-            --color-orange-dark: #ffa726;
-
-            /* Neutral Colors */
-            --color-white: #ffffff;
-            --color-light-gray: #f8f9fa;
-            --color-border: #e0e0e0;
-
-            /* Semantic Colors */
-            --color-error: #c62828;
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Mode Colors */
+                --color-bg: #000000;
+                --color-text: #f5f5f5;
+                --color-text-secondary: #d0d0d0;
+                --color-button: #ffccbc;
+                --color-accent: #ffccbc;
+                --color-surface: #0a1f0a;
+                --color-surface-alt: #252e25;
+                --color-border: #2d5a2d;
+                --color-error: #ff6b6b;
+            }
         }
 
         * {
@@ -42,7 +41,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--color-bg-gradient-start) 0%, var(--color-bg-gradient-end) 100%);
+            background: var(--color-bg);
+            color: var(--color-text);
             min-height: 100vh;
             padding: 20px;
         }
@@ -61,7 +61,7 @@
         }
 
         .login-box {
-            background: var(--color-white);
+            background: var(--color-surface);
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -71,7 +71,7 @@
         }
 
         .login-box h1 {
-            color: var(--color-dark-green);
+            color: var(--color-text);
             margin-bottom: 30px;
             font-size: 2em;
         }
@@ -79,7 +79,7 @@
         .login-box input {
             width: 100%;
             padding: 15px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             font-size: 16px;
             margin-bottom: 20px;
@@ -88,25 +88,25 @@
 
         .login-box input:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--color-dark-green) 0%, var(--color-medium-green) 100%);
-            color: var(--color-pink);
+            background: var(--color-button);
+            color: #ffffff;
             border: none;
             padding: 15px 30px;
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
             width: 100%;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(27, 94, 32, 0.4);
+            opacity: 0.9;
         }
 
         .btn:active {
@@ -114,7 +114,8 @@
         }
 
         .btn-secondary {
-            background: var(--color-orange);
+            background: var(--color-accent);
+            color: var(--color-text);
             margin-top: 10px;
         }
 
@@ -140,7 +141,7 @@
         }
 
         .header {
-            background: var(--color-white);
+            background: var(--color-surface);
             padding: 20px 30px;
             border-radius: 20px;
             margin-bottom: 30px;
@@ -153,12 +154,12 @@
         }
 
         .header h1 {
-            color: var(--color-dark-green);
+            color: var(--color-text);
             font-size: 2em;
         }
 
         .search-container {
-            background: var(--color-white);
+            background: var(--color-surface);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
@@ -175,7 +176,7 @@
         .search-box input {
             flex: 1;
             padding: 15px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             font-size: 16px;
             min-width: 200px;
@@ -183,15 +184,15 @@
 
         .search-box input:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .search-box select {
             padding: 15px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             font-size: 16px;
-            background: var(--color-white);
+            background: var(--color-surface);
             cursor: pointer;
         }
 
@@ -209,13 +210,13 @@
             border-radius: 10px;
             overflow: hidden;
             transition: transform 0.2s;
-            background: var(--color-light-gray);
+            background: var(--color-surface-alt);
             border: 2px solid transparent;
         }
 
         .search-result-item:hover {
             transform: scale(1.05);
-            border-color: var(--color-orange);
+            border-color: var(--color-accent);
         }
 
         .search-result-item img {
@@ -239,13 +240,13 @@
 
         .manual-add h3 {
             margin-bottom: 15px;
-            color: var(--color-dark-green);
+            color: var(--color-text);
         }
 
         .manual-add input, .manual-add textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             font-size: 14px;
             margin-bottom: 10px;
@@ -254,7 +255,7 @@
 
         .manual-add input:focus, .manual-add textarea:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .manual-add textarea {
@@ -263,7 +264,7 @@
         }
 
         .watchlist-container {
-            background: var(--color-white);
+            background: var(--color-surface);
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
@@ -284,7 +285,7 @@
 
         .filter-label {
             font-weight: 600;
-            color: var(--color-dark-green);
+            color: var(--color-text);
             margin-bottom: 8px;
             font-size: 14px;
         }
@@ -292,23 +293,23 @@
         .filter-select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             font-size: 16px;
-            background: var(--color-white);
+            background: var(--color-surface);
             cursor: pointer;
             font-weight: 600;
             transition: border-color 0.3s;
-            color: var(--color-dark-green);
+            color: var(--color-text);
         }
 
         .filter-select:hover {
-            border-color: var(--color-orange);
+            border-color: var(--color-accent);
         }
 
         .filter-select:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .genre-select-container {
@@ -320,8 +321,8 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: var(--color-white);
-            border: 2px solid var(--color-teal);
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             margin-top: 5px;
             max-height: 300px;
@@ -345,7 +346,7 @@
         }
 
         .genre-option:hover {
-            background: var(--color-light-gray);
+            background: var(--color-surface-alt);
         }
 
         .genre-option input[type="checkbox"] {
@@ -360,8 +361,8 @@
         }
 
         .genre-tag {
-            background: linear-gradient(135deg, var(--color-dark-green) 0%, var(--color-medium-green) 100%);
-            color: var(--color-pink);
+            background: var(--color-button);
+            color: #ffffff;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 14px;
@@ -387,7 +388,7 @@
         }
 
         .watchlist-item {
-            background: var(--color-light-gray);
+            background: var(--color-surface-alt);
             border-radius: 15px;
             padding: 20px;
             display: grid;
@@ -405,6 +406,14 @@
             height: 120px;
             object-fit: cover;
             border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: width 0.6s ease, height 0.6s ease, box-shadow 0.6s ease;
+        }
+
+        .watchlist-item.collapsed .item-poster {
+            width: 50px;
+            height: 75px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .item-details {
@@ -414,12 +423,12 @@
         .item-title {
             font-size: 1.3em;
             font-weight: 700;
-            color: var(--color-dark-green);
+            color: var(--color-text);
             margin-bottom: 5px;
         }
 
         .item-meta {
-            color: var(--color-medium-green);
+            color: var(--color-text-secondary);
             font-size: 0.9em;
             margin-bottom: 10px;
         }
@@ -432,8 +441,8 @@
         }
 
         .genre-badge {
-            background: var(--color-bg-light);
-            color: var(--color-dark-green);
+            background: var(--color-accent);
+            color: #052905;
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.8em;
@@ -441,7 +450,7 @@
         }
 
         .item-overview {
-            color: var(--color-medium-green);
+            color: var(--color-text-secondary);
             line-height: 1.5;
             margin-bottom: 10px;
         }
@@ -454,8 +463,8 @@
         }
 
         .item-links a {
-            color: var(--color-teal);
-            text-decoration: none;
+            color: var(--color-text);
+            text-decoration: underline;
             font-weight: 600;
             font-size: 0.9em;
         }
@@ -471,18 +480,18 @@
         }
 
         .review-text {
-            background: var(--color-white);
+            background: var(--color-surface);
             padding: 12px;
             border-radius: 8px;
             margin-top: 8px;
             font-style: italic;
-            color: var(--color-medium-green);
+            color: var(--color-text-secondary);
         }
 
         .review-form textarea {
             width: 100%;
             padding: 10px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 8px;
             margin-top: 8px;
             font-family: inherit;
@@ -491,13 +500,13 @@
 
         .review-form textarea:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .ratings-section {
             margin-top: 15px;
             padding: 15px;
-            background: var(--color-light-gray);
+            background: var(--color-surface-alt);
             border-radius: 10px;
         }
 
@@ -507,7 +516,7 @@
 
         .rating-label {
             font-weight: 600;
-            color: var(--color-dark-green);
+            color: var(--color-text);
             margin-bottom: 8px;
         }
 
@@ -520,7 +529,7 @@
         .rating-row input {
             width: 60px;
             padding: 6px 10px;
-            border: 2px solid var(--color-teal);
+            border: 2px solid var(--color-border);
             border-radius: 8px;
             font-size: 16px;
             text-align: center;
@@ -528,7 +537,7 @@
 
         .rating-row input:focus {
             outline: none;
-            border-color: var(--color-dark-green);
+            border-color: var(--color-text);
         }
 
         .ratings-section .btn-small {
@@ -540,13 +549,13 @@
         }
 
         .stars-display {
-            color: var(--color-orange);
+            color: var(--color-accent);
             font-size: 18px;
             letter-spacing: 2px;
         }
 
         .rating-number {
-            color: var(--color-medium-green);
+            color: var(--color-text-secondary);
             font-size: 14px;
             margin-left: 8px;
         }
@@ -569,49 +578,96 @@
         }
 
         .btn-watched {
-            background: var(--color-teal);
-            color: var(--color-white);
+            background: var(--color-button);
+            color: #ffffff;
         }
 
         .btn-watched:hover {
-            background: var(--color-teal-dark);
+            opacity: 0.8;
         }
 
         .btn-review {
-            background: var(--color-dark-green);
-            color: var(--color-pink);
+            background: var(--color-accent);
+            color: var(--color-text);
         }
 
         .btn-review:hover {
-            background: var(--color-medium-green);
+            opacity: 0.8;
         }
 
         .btn-delete {
-            background: var(--color-orange);
-            color: var(--color-white);
+            background: var(--color-error);
+            color: #ffffff;
         }
 
         .btn-delete:hover {
-            background: var(--color-orange-dark);
+            opacity: 0.8;
+        }
+
+        .btn-collapse {
+            background: var(--color-accent);
+            color: #ffffff;
+        }
+
+        .btn-collapse:hover {
+            opacity: 0.8;
+        }
+
+        .item-details > * {
+            transition: opacity 0.6s ease, max-height 0.6s ease;
+            max-height: 1000px;
+            opacity: 1;
+            overflow: hidden;
+        }
+
+        .watchlist-item.collapsed .item-details > *:not(.item-title):not(.item-meta):not(.item-genres) {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .item-actions {
+            transition: opacity 0.6s ease, max-height 0.6s ease;
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        .watchlist-item.collapsed .item-actions {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .collapse-all-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: var(--color-medium-green);
+            color: var(--color-text);
         }
 
         .empty-state h3 {
             font-size: 1.5em;
             margin-bottom: 10px;
-            color: var(--color-dark-green);
+            color: var(--color-text);
         }
 
         .loading {
             text-align: center;
             padding: 20px;
-            color: var(--color-dark-green);
+            color: var(--color-text);
             font-weight: 600;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn, .btn-watched, .btn-review, .btn-delete, .btn-action, .btn-collapse {
+                color: #1a1a1a;
+            }
         }
 
         @media (max-width: 768px) {
@@ -660,7 +716,7 @@
 
             <!-- Search and Add Section -->
             <div class="search-container">
-                <h2 style="margin-bottom: 20px; color: #2d3748;">Add New Item</h2>
+                <h2 style="margin-bottom: 20px; color: var(--color-text);">Add New Item</h2>
 
                 <div class="search-box">
                     <div class="genre-select-container" style="min-width: 150px;">
@@ -687,7 +743,13 @@
 
             <!-- Watchlist Section -->
             <div class="watchlist-container">
-                <h2 style="margin-bottom: 20px; color: #2d3748;">My Watchlist</h2>
+                <h2 style="margin-bottom: 20px; color: var(--color-text);">Watchlist</h2>
+
+                <div class="collapse-all-container">
+                    <button class="btn btn-small" onclick="toggleAllCollapsed()">
+                        <span id="collapseAllText">Collapse All</span>
+                    </button>
+                </div>
 
                 <div class="filter-controls">
                     <div class="filter-group">
@@ -751,6 +813,7 @@
         let currentFilter = 'all';
         let selectedGenres = [];
         let genreMap = { movie: {}, tv: {} };
+        let collapsedItems = new Set();
 
         // ========== GENRE MANAGEMENT ==========
         async function loadGenres() {
@@ -1411,6 +1474,71 @@
             renderWatchlist();
         }
 
+        function toggleCollapse(firestoreId) {
+            if (collapsedItems.has(firestoreId)) {
+                collapsedItems.delete(firestoreId);
+            } else {
+                collapsedItems.add(firestoreId);
+            }
+            renderWatchlist();
+        }
+
+        function toggleAllCollapsed() {
+            const visibleItems = getFilteredWatchlist();
+            const allCollapsed = visibleItems.every(item => collapsedItems.has(item.firestoreId));
+
+            if (allCollapsed) {
+                // Expand all
+                visibleItems.forEach(item => collapsedItems.delete(item.firestoreId));
+                document.getElementById('collapseAllText').textContent = 'Collapse All';
+            } else {
+                // Collapse all
+                visibleItems.forEach(item => collapsedItems.add(item.firestoreId));
+                document.getElementById('collapseAllText').textContent = 'Expand All';
+            }
+            renderWatchlist();
+        }
+
+        function getFilteredWatchlist() {
+            let filtered = watchlist;
+
+            // Apply media type filter
+            if (currentFilter === 'movie') {
+                filtered = filtered.filter(item => item.type === 'movie');
+            } else if (currentFilter === 'tv') {
+                filtered = filtered.filter(item => item.type === 'tv');
+            } else if (currentFilter === 'game') {
+                filtered = filtered.filter(item => item.type === 'game');
+            } else if (currentFilter === 'book') {
+                filtered = filtered.filter(item => item.type === 'book');
+            } else if (currentFilter === 'podcast') {
+                filtered = filtered.filter(item => item.type === 'podcast');
+            } else if (currentFilter === 'other') {
+                filtered = filtered.filter(item => !['movie', 'tv', 'game', 'book', 'podcast'].includes(item.type));
+            }
+
+            // Apply genre and special filters (show items matching ANY selected filter)
+            if (selectedGenres.length > 0) {
+                filtered = filtered.filter(item => {
+                    // Check special filters first
+                    if (selectedGenres.includes('Watched') && item.watched) return true;
+                    if (selectedGenres.includes('Unwatched') && !item.watched) return true;
+
+                    // Then check genre filters
+                    if (item.genres && Array.isArray(item.genres)) {
+                        const regularGenres = selectedGenres.filter(g => !specialFilters.includes(g));
+                        if (regularGenres.length > 0) {
+                            return item.genres.some(genre => regularGenres.includes(genre));
+                        }
+                    }
+
+                    return false;
+                });
+            }
+
+            return filtered;
+        }
+
         function updateSelectedGenresDisplay() {
             const display = document.getElementById('selectedGenresDisplay');
             if (selectedGenres.length === 0) {
@@ -1450,40 +1578,14 @@
         function renderWatchlist() {
             const container = document.getElementById('watchlistItems');
 
-            let filtered = watchlist;
+            const filtered = getFilteredWatchlist();
 
-            // Apply media type filter
-            if (currentFilter === 'movie') {
-                filtered = filtered.filter(item => item.type === 'movie');
-            } else if (currentFilter === 'tv') {
-                filtered = filtered.filter(item => item.type === 'tv');
-            } else if (currentFilter === 'game') {
-                filtered = filtered.filter(item => item.type === 'game');
-            } else if (currentFilter === 'book') {
-                filtered = filtered.filter(item => item.type === 'book');
-            } else if (currentFilter === 'podcast') {
-                filtered = filtered.filter(item => item.type === 'podcast');
-            } else if (currentFilter === 'other') {
-                filtered = filtered.filter(item => !['movie', 'tv', 'game', 'book', 'podcast'].includes(item.type));
-            }
-
-            // Apply genre and special filters (show items matching ANY selected filter)
-            if (selectedGenres.length > 0) {
-                filtered = filtered.filter(item => {
-                    // Check special filters first
-                    if (selectedGenres.includes('Watched') && item.watched) return true;
-                    if (selectedGenres.includes('Unwatched') && !item.watched) return true;
-
-                    // Then check genre filters
-                    if (item.genres && Array.isArray(item.genres)) {
-                        const regularGenres = selectedGenres.filter(g => !specialFilters.includes(g));
-                        if (regularGenres.length > 0) {
-                            return item.genres.some(genre => regularGenres.includes(genre));
-                        }
-                    }
-
-                    return false;
-                });
+            // Update collapse all button text based on current state
+            const visibleItems = filtered.filter(item => item.firestoreId);
+            const allCollapsed = visibleItems.length > 0 && visibleItems.every(item => collapsedItems.has(item.firestoreId));
+            const collapseAllText = document.getElementById('collapseAllText');
+            if (collapseAllText) {
+                collapseAllText.textContent = allCollapsed ? 'Expand All' : 'Collapse All';
             }
 
             if (filtered.length === 0) {
@@ -1496,15 +1598,17 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(item => `
-                <div class="watchlist-item ${item.watched ? 'watched' : ''}">
+            container.innerHTML = filtered.map(item => {
+                const isCollapsed = collapsedItems.has(item.firestoreId);
+                return `
+                <div class="watchlist-item ${item.watched ? 'watched' : ''} ${isCollapsed ? 'collapsed' : ''}">
                     ${item.poster
-                        ? `<img src="${item.poster}" alt="${item.title}" class="item-poster">`
-                        : '<div class="item-poster" style="background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>'
+                        ? `<img src="${item.poster}" alt="${item.title}" class="item-poster" onclick="toggleCollapse('${item.firestoreId}')" style="cursor: pointer;">`
+                        : '<div class="item-poster" style="background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999; cursor: pointer;" onclick="toggleCollapse(\'' + item.firestoreId + '\')">No Image</div>'
                     }
 
                     <div class="item-details">
-                        <div class="item-title">${item.title}</div>
+                        <div class="item-title" onclick="toggleCollapse('${item.firestoreId}')" style="cursor: pointer;">${item.title}</div>
                         <div class="item-meta">
                             ${item.type.toUpperCase()}
                             ${item.year ? ` • ${item.year}` : ''}
@@ -1558,7 +1662,8 @@
                         <button class="btn-action btn-delete" onclick="deleteItem('${item.firestoreId}')">Remove</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
     </script>
 </body>
