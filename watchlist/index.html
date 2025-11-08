@@ -418,6 +418,9 @@
 
         .item-details {
             flex: 1;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .item-title {
@@ -425,12 +428,16 @@
             font-weight: 700;
             color: var(--color-text);
             margin-bottom: 5px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .item-meta {
             color: var(--color-text-secondary);
             font-size: 0.9em;
             margin-bottom: 10px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .item-genres {
@@ -453,6 +460,8 @@
             color: var(--color-text-secondary);
             line-height: 1.5;
             margin-bottom: 10px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .item-links {
@@ -467,6 +476,8 @@
             text-decoration: underline;
             font-weight: 600;
             font-size: 0.9em;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .item-links a:hover {
@@ -672,18 +683,32 @@
         }
 
         @media (max-width: 768px) {
-            .watchlist-item {
-                grid-template-columns: 1fr;
+            body {
+                padding: 10px;
             }
 
-            .item-actions {
-                flex-direction: row;
-                flex-wrap: wrap;
+            .watchlist-item {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            .watchlist-container {
+                padding: 15px;
+            }
+
+            .search-container {
+                padding: 15px;
             }
 
             .header {
                 flex-direction: column;
                 text-align: center;
+                padding: 15px 20px;
+            }
+
+            .item-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
             }
 
             .search-box {
