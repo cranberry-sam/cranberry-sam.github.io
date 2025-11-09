@@ -1658,12 +1658,14 @@
                             </div>
                         ` : ''}
 
-                        <!-- Ratings Section -->
-                        <div class="ratings-section">
-                            ${renderRatingInput(item.firestoreId, 'sam', 'Sam', item.samRating)}
-                            ${renderRatingInput(item.firestoreId, 'leslie', 'Leslie', item.leslieRating)}
-                            <button class="btn btn-small" onclick="saveRatings('${item.firestoreId}')">Save Ratings</button>
-                        </div>
+                        ${item.watched ? `
+                            <!-- Ratings Section -->
+                            <div class="ratings-section">
+                                ${renderRatingInput(item.firestoreId, 'sam', 'Sam', item.samRating)}
+                                ${renderRatingInput(item.firestoreId, 'leslie', 'Leslie', item.leslieRating)}
+                                <button class="btn btn-small" onclick="saveRatings('${item.firestoreId}')">Save Ratings</button>
+                            </div>
+                        ` : ''}
 
                         ${item.watched ? `
                             <div class="review-section">
