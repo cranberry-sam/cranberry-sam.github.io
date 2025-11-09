@@ -484,10 +484,42 @@
             text-decoration: underline;
         }
 
+        .item-notes {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            color: var(--color-text-secondary);
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .notes-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--color-border);
+        }
+
+        .notes-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            margin-top: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            min-height: 60px;
+        }
+
+        .notes-form textarea:focus {
+            outline: none;
+            border-color: var(--color-text);
+        }
+
         .review-section {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 2px solid #e0e0e0;
+            border-top: 2px solid var(--color-border);
         }
 
         .review-text {
@@ -632,7 +664,7 @@
             overflow: hidden;
         }
 
-        .watchlist-item.collapsed .item-details > *:not(.item-title):not(.item-meta):not(.item-genres) {
+        .watchlist-item.collapsed .item-details > *:not(.item-title):not(.item-meta):not(.item-genres):not(.item-notes) {
             max-height: 0;
             opacity: 0;
             margin: 0;
@@ -1271,6 +1303,17 @@
             }
         }
 
+        async function saveNotes(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
+            const notes = document.getElementById(`notes-${firestoreId}`).value.trim();
+
+            if (item) {
+                item.notes = notes || null;
+                await saveItem(item);
+                renderWatchlist();
+            }
+        }
+
         async function saveRatings(firestoreId) {
             const item = watchlist.find(i => i.firestoreId === firestoreId);
             if (!item) return;
@@ -1648,6 +1691,21 @@
                                 ${item.genres.map(genre => `<span class="genre-badge">${genre}</span>`).join('')}
                             </div>
                         ` : ''}
+                        ${item.notes ? `
+                            <div class="item-notes">
+                                <strong>Note:</strong> ${item.notes}
+                            </div>
+                        ` : ''}
+
+                        <!-- Notes Edit Section -->
+                        <div class="notes-section">
+                            <div><strong>${item.notes ? 'Edit note:' : 'Add a note:'}</strong></div>
+                            <div class="notes-form">
+                                <textarea id="notes-${item.firestoreId}" placeholder="Who recommended this? Why do you want to watch it?">${item.notes || ''}</textarea>
+                                <button class="btn btn-small" style="margin-top: 8px;" onclick="saveNotes('${item.firestoreId}')">Save Note</button>
+                            </div>
+                        </div>
+
                         ${item.overview ? `<div class="item-overview">${item.overview}</div>` : ''}
 
                         ${(item.tmdbUrl || item.whereToWatch || item.url) ? `
