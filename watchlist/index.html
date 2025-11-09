@@ -714,6 +714,186 @@
             }
         }
 
+        /* Wizard Modal */
+        .wizard-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .wizard-overlay.active {
+            display: flex;
+        }
+
+        .wizard-modal {
+            background: var(--color-surface);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .wizard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .wizard-header h2 {
+            color: var(--color-text);
+            font-size: 1.8em;
+        }
+
+        .wizard-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--color-text);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wizard-close:hover {
+            opacity: 0.7;
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        .wizard-step h3 {
+            color: var(--color-text);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .wizard-options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wizard-option {
+            padding: 15px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--color-surface-alt);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .wizard-option:hover {
+            border-color: var(--color-accent);
+            background: var(--color-surface);
+        }
+
+        .wizard-option.selected {
+            border-color: var(--color-button);
+            background: var(--color-surface);
+        }
+
+        .wizard-option input[type="checkbox"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .wizard-option label {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--color-text);
+            flex: 1;
+        }
+
+        .wizard-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .wizard-results {
+            display: grid;
+            gap: 20px;
+        }
+
+        .wizard-result-item {
+            background: var(--color-surface-alt);
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .wizard-result-poster {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .wizard-result-details {
+            flex: 1;
+        }
+
+        .wizard-result-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 5px;
+        }
+
+        .wizard-result-meta {
+            color: var(--color-text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .wizard-result-overview {
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .wizard-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .wizard-empty h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--color-text);
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -749,6 +929,22 @@
 
             .search-results {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .wizard-modal {
+                padding: 20px;
+            }
+
+            .wizard-result-item {
+                grid-template-columns: 1fr;
+            }
+
+            .wizard-buttons {
+                flex-direction: column;
+            }
+
+            .wizard-buttons .btn {
+                width: 100%;
             }
         }
     </style>
@@ -804,6 +1000,9 @@
                 <h2 style="margin-bottom: 20px; color: var(--color-text);">Watchlist</h2>
 
                 <div class="collapse-all-container">
+                    <button class="btn btn-small" onclick="openHelpMeDecideWizard()" style="margin-right: 10px;">
+                        Help Me Decide
+                    </button>
                     <button class="btn btn-small" onclick="toggleAllCollapsed()">
                         <span id="collapseAllText">Collapse All</span>
                     </button>
@@ -834,6 +1033,45 @@
 
                 <div id="watchlistItems" class="watchlist-items">
                     <div class="loading">Loading your watchlist...</div>
+                </div>
+            </div>
+
+            <!-- Help Me Decide Wizard -->
+            <div id="wizardOverlay" class="wizard-overlay" onclick="closeWizardOnOverlayClick(event)">
+                <div class="wizard-modal" onclick="event.stopPropagation()">
+                    <div class="wizard-header">
+                        <h2>Help Me Decide</h2>
+                        <button class="wizard-close" onclick="closeHelpMeDecideWizard()">×</button>
+                    </div>
+
+                    <!-- Step 1: Select Media Type -->
+                    <div id="wizardStep1" class="wizard-step active">
+                        <h3>What type of media do you want to watch?</h3>
+                        <div class="wizard-options" id="wizardMediaTypes"></div>
+                        <div class="wizard-buttons">
+                            <button class="btn" onclick="wizardNextStep()">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Select Genres -->
+                    <div id="wizardStep2" class="wizard-step">
+                        <h3>What genres are you in the mood for?</h3>
+                        <div class="wizard-options" id="wizardGenres"></div>
+                        <div class="wizard-buttons">
+                            <button class="btn btn-secondary" onclick="wizardPrevStep()">Back</button>
+                            <button class="btn" onclick="wizardShowResults()">Show Me!</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Results -->
+                    <div id="wizardStep3" class="wizard-step">
+                        <h3>Here are 3 suggestions for you:</h3>
+                        <div id="wizardResults" class="wizard-results"></div>
+                        <div class="wizard-buttons">
+                            <button class="btn btn-secondary" onclick="wizardPrevStep()">Back</button>
+                            <button class="btn" onclick="wizardShowResults()">Show Different Items</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1750,6 +1988,205 @@
                 </div>
             `;
             }).join('');
+        }
+
+        // ========== HELP ME DECIDE WIZARD ==========
+        let wizardState = {
+            currentStep: 1,
+            selectedMediaTypes: [],
+            selectedWizardGenres: []
+        };
+
+        function openHelpMeDecideWizard() {
+            // Reset wizard state
+            wizardState = {
+                currentStep: 1,
+                selectedMediaTypes: [],
+                selectedWizardGenres: []
+            };
+
+            // Populate media types
+            const mediaTypesContainer = document.getElementById('wizardMediaTypes');
+            const availableTypes = [...new Set(watchlist.map(item => item.type))].sort();
+
+            mediaTypesContainer.innerHTML = availableTypes.map(type => {
+                const label = mediaTypeOptions.find(opt => opt.value === type)?.label || type;
+                return `
+                    <div class="wizard-option" onclick="toggleWizardMediaType('${type}')">
+                        <input type="checkbox" id="wizard-type-${type}" onchange="toggleWizardMediaType('${type}')">
+                        <label for="wizard-type-${type}">${label}</label>
+                    </div>
+                `;
+            }).join('');
+
+            // Show wizard
+            document.getElementById('wizardOverlay').classList.add('active');
+            showWizardStep(1);
+        }
+
+        function closeHelpMeDecideWizard() {
+            document.getElementById('wizardOverlay').classList.remove('active');
+        }
+
+        function closeWizardOnOverlayClick(event) {
+            if (event.target.id === 'wizardOverlay') {
+                closeHelpMeDecideWizard();
+            }
+        }
+
+        function toggleWizardMediaType(type) {
+            const index = wizardState.selectedMediaTypes.indexOf(type);
+            const checkbox = document.getElementById(`wizard-type-${type}`);
+
+            if (index > -1) {
+                wizardState.selectedMediaTypes.splice(index, 1);
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('selected');
+            } else {
+                wizardState.selectedMediaTypes.push(type);
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('selected');
+            }
+        }
+
+        function toggleWizardGenre(genre) {
+            const index = wizardState.selectedWizardGenres.indexOf(genre);
+            const checkbox = document.getElementById(`wizard-genre-${genre.replace(/[^a-zA-Z0-9]/g, '-')}`);
+
+            if (index > -1) {
+                wizardState.selectedWizardGenres.splice(index, 1);
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('selected');
+            } else {
+                wizardState.selectedWizardGenres.push(genre);
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('selected');
+            }
+        }
+
+        function showWizardStep(step) {
+            wizardState.currentStep = step;
+
+            // Hide all steps
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+
+            // Show current step
+            document.getElementById(`wizardStep${step}`).classList.add('active');
+        }
+
+        function wizardNextStep() {
+            if (wizardState.currentStep === 1) {
+                // Validate at least one media type is selected
+                if (wizardState.selectedMediaTypes.length === 0) {
+                    alert('Please select at least one media type');
+                    return;
+                }
+
+                // Populate genres based on selected media types
+                const genresContainer = document.getElementById('wizardGenres');
+                const genresSet = new Set();
+
+                // Get all unwatched items matching selected media types
+                const filteredItems = watchlist.filter(item =>
+                    !item.watched && wizardState.selectedMediaTypes.includes(item.type)
+                );
+
+                filteredItems.forEach(item => {
+                    if (item.genres && Array.isArray(item.genres)) {
+                        item.genres.forEach(genre => genresSet.add(genre));
+                    }
+                });
+
+                const genres = Array.from(genresSet).sort();
+
+                if (genres.length === 0) {
+                    genresContainer.innerHTML = `
+                        <div class="wizard-empty">
+                            <p>No genres available for the selected media types. Click "Show Me!" to see random items.</p>
+                        </div>
+                    `;
+                } else {
+                    genresContainer.innerHTML = genres.map(genre => `
+                        <div class="wizard-option" onclick="toggleWizardGenre('${genre.replace(/'/g, "\\'")}')">
+                            <input type="checkbox" id="wizard-genre-${genre.replace(/[^a-zA-Z0-9]/g, '-')}" onchange="toggleWizardGenre('${genre.replace(/'/g, "\\'")}')">
+                            <label for="wizard-genre-${genre.replace(/[^a-zA-Z0-9]/g, '-')}">${genre}</label>
+                        </div>
+                    `).join('');
+                }
+
+                showWizardStep(2);
+            }
+        }
+
+        function wizardPrevStep() {
+            if (wizardState.currentStep > 1) {
+                showWizardStep(wizardState.currentStep - 1);
+            }
+        }
+
+        function wizardShowResults() {
+            // Filter watchlist based on selections
+            let filteredItems = watchlist.filter(item =>
+                !item.watched && wizardState.selectedMediaTypes.includes(item.type)
+            );
+
+            // Apply genre filter if any genres are selected
+            if (wizardState.selectedWizardGenres.length > 0) {
+                filteredItems = filteredItems.filter(item => {
+                    if (item.genres && Array.isArray(item.genres)) {
+                        return item.genres.some(genre => wizardState.selectedWizardGenres.includes(genre));
+                    }
+                    return false;
+                });
+            }
+
+            const resultsContainer = document.getElementById('wizardResults');
+
+            if (filteredItems.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="wizard-empty">
+                        <h3>No items found</h3>
+                        <p>No unwatched items match your criteria. Try different selections!</p>
+                    </div>
+                `;
+            } else {
+                // Shuffle and get up to 3 random items
+                const shuffled = filteredItems.sort(() => Math.random() - 0.5);
+                const selectedItems = shuffled.slice(0, 3);
+
+                resultsContainer.innerHTML = selectedItems.map(item => `
+                    <div class="wizard-result-item">
+                        ${item.poster
+                            ? `<img src="${item.poster}" alt="${item.title}" class="wizard-result-poster">`
+                            : '<div class="wizard-result-poster" style="background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">No Image</div>'
+                        }
+                        <div class="wizard-result-details">
+                            <div class="wizard-result-title">${item.title}</div>
+                            <div class="wizard-result-meta">
+                                ${item.type.toUpperCase()}
+                                ${item.year ? ` • ${item.year}` : ''}
+                                ${item.author ? ` • ${item.author}` : ''}
+                                ${item.artist ? ` • ${item.artist}` : ''}
+                            </div>
+                            ${item.genres && item.genres.length > 0 ? `
+                                <div class="item-genres">
+                                    ${item.genres.map(genre => `<span class="genre-badge">${genre}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            ${item.notes ? `
+                                <div class="wizard-result-overview">
+                                    <strong>Note:</strong> ${item.notes}
+                                </div>
+                            ` : ''}
+                            ${item.overview && !item.notes ? `
+                                <div class="wizard-result-overview">${item.overview}</div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            showWizardStep(3);
         }
     </script>
 </body>
