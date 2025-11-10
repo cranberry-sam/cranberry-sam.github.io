@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Import Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ffccbc;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #ffccbc;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffccbc;
+        }
+
+        .stat-label {
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .log-container {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-success {
+            background: #0f3d0f;
+            color: #7bed9f;
+        }
+
+        .log-error {
+            background: #3d0f0f;
+            color: #ff6b6b;
+        }
+
+        .log-info {
+            background: #1a2a3a;
+            color: #74b9ff;
+        }
+
+        .log-warning {
+            background: #3a2a1a;
+            color: #ffa502;
+        }
+
+        .progress-bar {
+            background: #333;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #ffccbc, #ff9a76);
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a1a;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status-idle {
+            background: #2a2a2a;
+            color: #999;
+        }
+
+        .status-running {
+            background: #1a3a2a;
+            color: #7bed9f;
+        }
+
+        .status-complete {
+            background: #0f3d0f;
+            color: #7bed9f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Media Import Tool</h1>
+        <p class="subtitle">Import your media list to Firebase</p>
+
+        <div id="status" class="status status-idle">Ready to import</div>
+
+        <div class="progress-bar">
+            <div id="progressBar" class="progress-fill" style="width: 0%">0%</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div id="successCount" class="stat-number">0</div>
+                <div class="stat-label">✅ Success</div>
+            </div>
+            <div class="stat-card">
+                <div id="failedCount" class="stat-number">0</div>
+                <div class="stat-label">❌ Failed</div>
+            </div>
+            <div class="stat-card">
+                <div id="totalCount" class="stat-number">91</div>
+                <div class="stat-label">📊 Total</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="startImport()" id="startBtn">🚀 Start Import</button>
+            <button onclick="clearLog()" id="clearBtn">🗑️ Clear Log</button>
+            <button onclick="exportResults()" id="exportBtn" disabled>💾 Export Results</button>
+        </div>
+
+        <div class="log-container" id="logContainer"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const CONFIG = {
+            TMDB_API_KEY: 'e3cabd714830aea7a4e8ff5d7d0b7044',
+            RAWG_API_KEY: '44ba0f7cd39d4d5a89e9e69cdbf967a2',
+            FIREBASE: {
+                apiKey: "AIzaSyDvFCUnadbVzci6GrkXc4coybXEL-UDSww",
+                authDomain: "watchlist-app-ec3a0.firebaseapp.com",
+                projectId: "watchlist-app-ec3a0",
+                storageBucket: "watchlist-app-ec3a0.firebasestorage.app",
+                messagingSenderId: "585504841013",
+                appId: "1:585504841013:web:f04fefc27095c3054e407c",
+                measurementId: "G-4GKX86XXPJ"
+            }
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(CONFIG.FIREBASE);
+        const db = firebase.firestore();
+        const watchlistCollection = db.collection('watchlist');
+
+        // Results storage
+        const results = {
+            success: [],
+            failed: []
+        };
+
+        // Media to import
+        const MEDIA_TO_IMPORT = {
+            movies: [
+                { title: "RRR", year: 2022 },
+                { title: "Picnic at Hanging Rock", year: 1975 },
+                { title: "Angel's Egg", year: 1985 },
+                { title: "Suspiria", year: 1977 },
+                { title: "The Departed", year: 2006 },
+                { title: "The Graduate", year: 1967 },
+                { title: "The Greasy Strangler", year: 2016 },
+                { title: "The Whale", year: 2022 },
+                { title: "Requiem for a Dream", year: 2000 },
+                { title: "Hellzapoppin'", year: 1941 },
+                { title: "Cryptozoo", year: 2021 },
+                { title: "Bebe's Kids", year: 1992 },
+                { title: "I Love You Phillip Morris", year: 2009 },
+                { title: "Noroi: The Curse", year: 2005 },
+                { title: "Black Swan", year: 2010 },
+                { title: "Hunt for the Wilderpeople", year: 2016 },
+                { title: "The NeverEnding Story", year: 1984 },
+                { title: "Breakin'", year: 1984 },
+                { title: "No Strings Attached", year: 2011 },
+                { title: "Penguin Highway", year: 2018 },
+                { title: "The Usual Suspects", year: 1995 },
+                { title: "Three Identical Strangers", year: 2018 },
+                { title: "Aniara", year: 2018 },
+                { title: "I Care a Lot", year: 2020 },
+                { title: "Poor Things", year: 2023 },
+                { title: "How to Talk to Girls at Parties", year: 2017 },
+                { title: "Jack and the Cuckoo-Clock Heart", year: 2013 },
+                { title: "The Imitation Game", year: 2014 },
+                { title: "Wizards", year: 1977 },
+                { title: "UHF", year: 1989 },
+                { title: "Tenacious D in The Pick of Destiny", year: 2006 },
+                { title: "MirrorMask", year: 2005 },
+                { title: "Sneakers", year: 1992 },
+                { title: "Bernie", year: 2011 },
+                { title: "Something in the Dirt", year: 2022 },
+                { title: "The Borderlands", year: 2013 },
+                { title: "Junk Head", year: 2017 },
+                { title: "Mad God", year: 2021 },
+                { title: "Wendell & Wild", year: 2022 },
+                { title: "Marcel the Shell with Shoes On", year: 2021 },
+                { title: "The Art of Self-Defense", year: 2019 },
+                { title: "Napoleon Dynamite", year: 2004 },
+                { title: "Hereditary", year: 2018 },
+                { title: "Caveat", year: 2020 },
+                { title: "It Follows", year: 2014 },
+                { title: "Alien", year: 1979 },
+                { title: "Pulse", year: 2001 },
+                { title: "The Conjuring 2", year: 2016 },
+                { title: "Paranormal Activity 3", year: 2011 },
+                { title: "Annabelle: Creation", year: 2017 },
+                { title: "The Blair Witch Project", year: 1999 },
+                { title: "REC", year: 2007 },
+            ],
+            tv: [
+                { title: "The Summoning", year: 2017 },
+                { title: "Murder, She Wrote", year: 1984 },
+                { title: "1883", year: 2021 },
+                { title: "Round the Twist", year: 1989 },
+                { title: "Grand Designs", year: 1999 },
+                { title: "The Peripheral", year: 2022 },
+                { title: "Barry", year: 2018 },
+                { title: "Fired on Mars", year: 2023 },
+                { title: "Pantheon", year: 2022 },
+                { title: "Baskets", year: 2016 },
+                { title: "Skip and Loafer", year: 2023 },
+                { title: "Miracle Workers", year: 2019 },
+                { title: "Tatami Time Machine Blues", year: 2022 },
+                { title: "Severance", year: 2022 },
+                { title: "The Watcher", year: 2022 },
+            ],
+            games: [
+                { title: "Paratopic" },
+                { title: "Fatum Betula" },
+                { title: "OMORI" },
+                { title: "Phantom Abyss" },
+                { title: "Pepper Grinder" },
+                { title: "Windosill" },
+                { title: "Chop Goblins" },
+                { title: "RimWorld" },
+                { title: "Earth Defense Force 6" },
+                { title: "Pizza Tower" },
+                { title: "Hylics" },
+                { title: "The Exit 8" },
+            ],
+            books: [
+                { title: "Roadside Picnic", author: "Arkady Strugatsky" },
+                { title: "Four Thousand Weeks", author: "Oliver Burkeman" },
+                { title: "Humankind", author: "Rutger Bregman" },
+                { title: "The Perfection of the Paper Clip", author: "James Ward" },
+                { title: "Boom Town", author: "Sam Anderson" },
+                { title: "The Vanishing Hitchhiker", author: "Jan Harold Brunvand" },
+                { title: "Children of Time", author: "Adrian Tchaikovsky" },
+                { title: "The City & The City", author: "China Miéville" },
+                { title: "Revenge", author: "Yoko Ogawa" },
+            ],
+            podcasts: [
+                { title: "Blowback" },
+                { title: "Bone Valley" },
+            ]
+        };
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStats(success, failed, total) {
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('failedCount').textContent = failed;
+            const percentage = Math.round((success + failed) / total * 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressBar').textContent = percentage + '%';
+        }
+
+        function updateStatus(message, className) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + className;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function searchTMDB(query, mediaType, year = null) {
+            try {
+                const searchUrl = `https://api.themoviedb.org/3/search/${mediaType}?api_key=${CONFIG.TMDB_API_KEY}&query=${encodeURIComponent(query)}${year ? `&year=${year}` : ''}`;
+                const response = await fetch(searchUrl);
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const item = data.results[0];
+
+                    // Get detailed info for genres
+                    const detailUrl = `https://api.themoviedb.org/3/${mediaType}/${item.id}?api_key=${CONFIG.TMDB_API_KEY}`;
+                    const detailResponse = await fetch(detailUrl);
+                    const detailData = await detailResponse.json();
+
+                    return {
+                        type: mediaType,
+                        apiId: item.id,
+                        title: item.title || item.name,
+                        year: (item.release_date || item.first_air_date || '').substring(0, 4),
+                        poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+                        overview: item.overview,
+                        genres: (detailData.genres || []).map(g => g.name),
+                        tmdbUrl: `https://www.themoviedb.org/${mediaType}/${item.id}`,
+                        watched: false,
+                        addedDate: new Date().toISOString()
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.error(`Error searching TMDB:`, error);
+                return null;
+            }
+        }
+
+        async function searchGame(query) {
+            try {
+                const response = await fetch(
+                    `https://api.rawg.io/api/games?key=${CONFIG.RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=1`
+                );
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const item = data.results[0];
+                    return {
+                        type: 'game',
+                        apiId: item.id,
+                        title: item.name,
+                        year: item.released ? item.released.substring(0, 4) : null,
+                        poster: item.background_image,
+                        overview: `Platforms: ${(item.platforms || []).map(p => p.platform.name).slice(0, 3).join(', ')}`,
+                        rating: item.rating,
+                        url: `https://rawg.io/games/${item.slug}`,
+                        genres: (item.genres || []).map(g => g.name),
+                        watched: false,
+                        addedDate: new Date().toISOString()
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.error(`Error searching game:`, error);
+                return null;
+            }
+        }
+
+        async function searchBook(title, author = null) {
+            try {
+                const query = author ? `${title} ${author}` : title;
+                const response = await fetch(
+                    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=1`
+                );
+                const data = await response.json();
+
+                if (data.items && data.items.length > 0) {
+                    const item = data.items[0].volumeInfo;
+                    return {
+                        type: 'book',
+                        apiId: data.items[0].id,
+                        title: item.title,
+                        author: (item.authors || []).join(', '),
+                        year: item.publishedDate ? item.publishedDate.substring(0, 4) : null,
+                        poster: item.imageLinks?.thumbnail || null,
+                        overview: item.description || '',
+                        genres: item.categories || [],
+                        url: item.infoLink,
+                        watched: false,
+                        addedDate: new Date().toISOString()
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.error(`Error searching book:`, error);
+                return null;
+            }
+        }
+
+        async function searchPodcast(query) {
+            try {
+                const response = await fetch(
+                    `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=podcast&limit=1`
+                );
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const item = data.results[0];
+                    return {
+                        type: 'podcast',
+                        apiId: item.collectionId,
+                        title: item.collectionName,
+                        artist: item.artistName,
+                        year: item.releaseDate ? new Date(item.releaseDate).getFullYear().toString() : null,
+                        poster: item.artworkUrl600 || item.artworkUrl100,
+                        overview: item.description || '',
+                        genres: item.genres || [],
+                        url: item.collectionViewUrl,
+                        watched: false,
+                        addedDate: new Date().toISOString()
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.error(`Error searching podcast:`, error);
+                return null;
+            }
+        }
+
+        async function saveToFirebase(item) {
+            try {
+                await watchlistCollection.add(item);
+                return true;
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                return false;
+            }
+        }
+
+        async function startImport() {
+            document.getElementById('startBtn').disabled = true;
+            updateStatus('🚀 Import in progress...', 'status-running');
+
+            results.success = [];
+            results.failed = [];
+
+            let totalItems = 0;
+            for (const mediaType in MEDIA_TO_IMPORT) {
+                totalItems += MEDIA_TO_IMPORT[mediaType].length;
+            }
+
+            let processedCount = 0;
+
+            log('='.repeat(60), 'info');
+            log('🎬 STARTING MOVIE IMPORT', 'info');
+            log('='.repeat(60), 'info');
+
+            for (const movie of MEDIA_TO_IMPORT.movies) {
+                processedCount++;
+                log(`[${processedCount}/${totalItems}] Searching: ${movie.title} (${movie.year})`, 'info');
+
+                const result = await searchTMDB(movie.title, 'movie', movie.year);
+                if (result) {
+                    const saved = await saveToFirebase(result);
+                    if (saved) {
+                        results.success.push({ original: movie.title, imported: result });
+                        log(`  ✅ Added: ${result.title} (${result.year})`, 'success');
+                    } else {
+                        results.failed.push({ title: movie.title, type: 'movie', reason: 'Firebase save failed' });
+                        log(`  ❌ Failed to save to Firebase`, 'error');
+                    }
+                } else {
+                    results.failed.push({ title: movie.title, type: 'movie', reason: 'Not found in TMDB' });
+                    log(`  ❌ Not found`, 'error');
+                }
+
+                updateStats(results.success.length, results.failed.length, totalItems);
+                await sleep(250);
+            }
+
+            log('='.repeat(60), 'info');
+            log('📺 STARTING TV SHOW IMPORT', 'info');
+            log('='.repeat(60), 'info');
+
+            for (const show of MEDIA_TO_IMPORT.tv) {
+                processedCount++;
+                log(`[${processedCount}/${totalItems}] Searching: ${show.title} (${show.year})`, 'info');
+
+                const result = await searchTMDB(show.title, 'tv', show.year);
+                if (result) {
+                    const saved = await saveToFirebase(result);
+                    if (saved) {
+                        results.success.push({ original: show.title, imported: result });
+                        log(`  ✅ Added: ${result.title} (${result.year})`, 'success');
+                    } else {
+                        results.failed.push({ title: show.title, type: 'tv', reason: 'Firebase save failed' });
+                        log(`  ❌ Failed to save to Firebase`, 'error');
+                    }
+                } else {
+                    results.failed.push({ title: show.title, type: 'tv', reason: 'Not found in TMDB' });
+                    log(`  ❌ Not found`, 'error');
+                }
+
+                updateStats(results.success.length, results.failed.length, totalItems);
+                await sleep(250);
+            }
+
+            log('='.repeat(60), 'info');
+            log('🎮 STARTING GAME IMPORT', 'info');
+            log('='.repeat(60), 'info');
+
+            for (const game of MEDIA_TO_IMPORT.games) {
+                processedCount++;
+                log(`[${processedCount}/${totalItems}] Searching: ${game.title}`, 'info');
+
+                const result = await searchGame(game.title);
+                if (result) {
+                    const saved = await saveToFirebase(result);
+                    if (saved) {
+                        results.success.push({ original: game.title, imported: result });
+                        log(`  ✅ Added: ${result.title}`, 'success');
+                    } else {
+                        results.failed.push({ title: game.title, type: 'game', reason: 'Firebase save failed' });
+                        log(`  ❌ Failed to save to Firebase`, 'error');
+                    }
+                } else {
+                    results.failed.push({ title: game.title, type: 'game', reason: 'Not found in RAWG' });
+                    log(`  ❌ Not found`, 'error');
+                }
+
+                updateStats(results.success.length, results.failed.length, totalItems);
+                await sleep(250);
+            }
+
+            log('='.repeat(60), 'info');
+            log('📚 STARTING BOOK IMPORT', 'info');
+            log('='.repeat(60), 'info');
+
+            for (const book of MEDIA_TO_IMPORT.books) {
+                processedCount++;
+                log(`[${processedCount}/${totalItems}] Searching: ${book.title} by ${book.author}`, 'info');
+
+                const result = await searchBook(book.title, book.author);
+                if (result) {
+                    const saved = await saveToFirebase(result);
+                    if (saved) {
+                        results.success.push({ original: book.title, imported: result });
+                        log(`  ✅ Added: ${result.title}`, 'success');
+                    } else {
+                        results.failed.push({ title: book.title, type: 'book', reason: 'Firebase save failed' });
+                        log(`  ❌ Failed to save to Firebase`, 'error');
+                    }
+                } else {
+                    results.failed.push({ title: book.title, type: 'book', reason: 'Not found in Google Books' });
+                    log(`  ❌ Not found`, 'error');
+                }
+
+                updateStats(results.success.length, results.failed.length, totalItems);
+                await sleep(250);
+            }
+
+            log('='.repeat(60), 'info');
+            log('🎙️ STARTING PODCAST IMPORT', 'info');
+            log('='.repeat(60), 'info');
+
+            for (const podcast of MEDIA_TO_IMPORT.podcasts) {
+                processedCount++;
+                log(`[${processedCount}/${totalItems}] Searching: ${podcast.title}`, 'info');
+
+                const result = await searchPodcast(podcast.title);
+                if (result) {
+                    const saved = await saveToFirebase(result);
+                    if (saved) {
+                        results.success.push({ original: podcast.title, imported: result });
+                        log(`  ✅ Added: ${result.title}`, 'success');
+                    } else {
+                        results.failed.push({ title: podcast.title, type: 'podcast', reason: 'Firebase save failed' });
+                        log(`  ❌ Failed to save to Firebase`, 'error');
+                    }
+                } else {
+                    results.failed.push({ title: podcast.title, type: 'podcast', reason: 'Not found in iTunes' });
+                    log(`  ❌ Not found`, 'error');
+                }
+
+                updateStats(results.success.length, results.failed.length, totalItems);
+                await sleep(250);
+            }
+
+            log('='.repeat(60), 'info');
+            log(`🎉 IMPORT COMPLETE!`, 'success');
+            log(`✅ Successfully imported: ${results.success.length} items`, 'success');
+            log(`❌ Failed: ${results.failed.length} items`, 'error');
+            log('='.repeat(60), 'info');
+
+            updateStatus(`✅ Import complete! ${results.success.length} added, ${results.failed.length} failed`, 'status-complete');
+            document.getElementById('exportBtn').disabled = false;
+        }
+
+        function exportResults() {
+            const dataStr = JSON.stringify(results, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'import-results.json';
+            link.click();
+            log('💾 Results exported to import-results.json', 'success');
+        }
+
+        log('✨ Import tool ready! Click "Start Import" to begin.', 'info');
+    </script>
+</body>
+</html>
