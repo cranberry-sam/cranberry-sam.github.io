@@ -1254,6 +1254,7 @@
 
         // ========== FIRESTORE DATABASE ==========
         let isFirstLoad = true;
+        let seenItems = new Set();
 
         async function loadWatchlist() {
             try {
@@ -1261,7 +1262,13 @@
                 watchlistCollection.orderBy('addedDate', 'desc').onSnapshot(async (snapshot) => {
                     watchlist = [];
                     snapshot.forEach((doc) => {
-                        watchlist.push({ firestoreId: doc.id, ...doc.data() });
+                        const item = { firestoreId: doc.id, ...doc.data() };
+                        watchlist.push(item);
+                        // Collapse new items by default (items we haven't seen before)
+                        if (!seenItems.has(item.firestoreId)) {
+                            collapsedItems.add(item.firestoreId);
+                            seenItems.add(item.firestoreId);
+                        }
                     });
                     renderWatchlist();
 
