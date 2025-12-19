@@ -516,6 +516,40 @@
             border-color: var(--color-text);
         }
 
+        .tags-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--color-border);
+        }
+
+        .item-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag-badge {
+            background: var(--color-button);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tag-remove:hover {
+            opacity: 0.7;
+        }
+
         .review-section {
             margin-top: 15px;
             padding-top: 15px;
@@ -1029,6 +1063,17 @@
                             <div id="selectedGenresDisplay" class="selected-genres"></div>
                         </div>
                     </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Tags:</div>
+                        <div class="genre-select-container">
+                            <button id="tagFilterButton" class="filter-select" onclick="toggleTagDropdown(event)" style="text-align: left;">
+                                Select tags...
+                            </button>
+                            <div id="tagDropdown" class="genre-dropdown"></div>
+                            <div id="selectedTagsDisplay" class="selected-genres"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="watchlistItems" class="watchlist-items">
@@ -1108,6 +1153,7 @@
         let watchlist = [];
         let currentFilter = 'all';
         let selectedGenres = [];
+        let selectedTags = [];
         let genreMap = { movie: {}, tv: {} };
         let collapsedItems = new Set();
 
@@ -1457,6 +1503,7 @@
                     poster: item.image,
                     overview: item.overview,
                     genres: item.genres || [],
+                    tags: [],
                     watched: false,
                     review: null,
                     samRating: null,
@@ -1512,6 +1559,7 @@
                 title: title,
                 type: type || 'other',
                 overview: notes,
+                tags: [],
                 watched: false,
                 review: null,
                 samRating: null,
@@ -1554,6 +1602,33 @@
 
             if (item) {
                 item.notes = notes || null;
+                await saveItem(item);
+                renderWatchlist();
+            }
+        }
+
+        async function addTag(firestoreId) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
+            const tagInput = document.getElementById(`tag-input-${firestoreId}`);
+            const newTag = tagInput.value.trim();
+
+            if (item && newTag) {
+                if (!item.tags) {
+                    item.tags = [];
+                }
+                if (!item.tags.includes(newTag)) {
+                    item.tags.push(newTag);
+                    await saveItem(item);
+                    tagInput.value = '';
+                    renderWatchlist();
+                }
+            }
+        }
+
+        async function removeTag(firestoreId, tag) {
+            const item = watchlist.find(i => i.firestoreId === firestoreId);
+            if (item && item.tags) {
+                item.tags = item.tags.filter(t => t !== tag);
                 await saveItem(item);
                 renderWatchlist();
             }
@@ -1788,6 +1863,80 @@
             renderWatchlist();
         }
 
+        function getAllTags() {
+            const tagsSet = new Set();
+            watchlist.forEach(item => {
+                if (item.tags && Array.isArray(item.tags)) {
+                    item.tags.forEach(tag => tagsSet.add(tag));
+                }
+            });
+            return Array.from(tagsSet).sort();
+        }
+
+        function updateTagDropdown() {
+            const allTags = getAllTags();
+            const dropdown = document.getElementById('tagDropdown');
+
+            if (allTags.length === 0) {
+                dropdown.innerHTML = '<div class="genre-option" style="padding: 15px; text-align: center; color: var(--color-text-secondary);">No tags yet</div>';
+                return;
+            }
+
+            const options = allTags.map(tag => `
+                <div class="genre-option" onclick="toggleTagFilter('${tag.replace(/'/g, "\\'")}'); event.stopPropagation();">
+                    <input type="checkbox" id="tag-${tag.replace(/[^a-zA-Z0-9]/g, '-')}"
+                           ${selectedTags.includes(tag) ? 'checked' : ''}>
+                    <label>${tag}</label>
+                </div>
+            `);
+
+            dropdown.innerHTML = options.join('');
+        }
+
+        function toggleTagDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('tagDropdown');
+            dropdown.classList.toggle('active');
+            updateTagDropdown();
+        }
+
+        function toggleTagFilter(tag) {
+            const index = selectedTags.indexOf(tag);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+            } else {
+                selectedTags.push(tag);
+            }
+            updateSelectedTagsDisplay();
+            updateTagDropdown();
+            renderWatchlist();
+        }
+
+        function removeTagFilter(tag) {
+            const index = selectedTags.indexOf(tag);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+            }
+            updateSelectedTagsDisplay();
+            updateTagDropdown();
+            renderWatchlist();
+        }
+
+        function updateSelectedTagsDisplay() {
+            const display = document.getElementById('selectedTagsDisplay');
+            if (selectedTags.length === 0) {
+                display.innerHTML = '';
+                return;
+            }
+
+            display.innerHTML = selectedTags.map(tag => `
+                <div class="genre-tag">
+                    ${tag}
+                    <span class="genre-tag-remove" onclick="removeTagFilter('${tag.replace(/'/g, "\\'")}')">×</span>
+                </div>
+            `).join('');
+        }
+
         function toggleCollapse(firestoreId) {
             if (collapsedItems.has(firestoreId)) {
                 collapsedItems.delete(firestoreId);
@@ -1850,6 +1999,16 @@
                 });
             }
 
+            // Apply tag filters (show items matching ANY selected tag)
+            if (selectedTags.length > 0) {
+                filtered = filtered.filter(item => {
+                    if (item.tags && Array.isArray(item.tags)) {
+                        return item.tags.some(tag => selectedTags.includes(tag));
+                    }
+                    return false;
+                });
+            }
+
             return filtered;
         }
 
@@ -1886,6 +2045,12 @@
             const searchMediaTypeButton = document.getElementById('searchMediaTypeButton');
             if (searchMediaTypeDropdown && searchMediaTypeButton && !searchMediaTypeDropdown.contains(e.target) && !searchMediaTypeButton.contains(e.target)) {
                 searchMediaTypeDropdown.classList.remove('active');
+            }
+
+            const tagDropdown = document.getElementById('tagDropdown');
+            const tagButton = document.getElementById('tagFilterButton');
+            if (tagDropdown && tagButton && !tagDropdown.contains(e.target) && !tagButton.contains(e.target)) {
+                tagDropdown.classList.remove('active');
             }
         });
 
@@ -1948,6 +2113,25 @@
                             <div class="notes-form">
                                 <textarea id="notes-${item.firestoreId}" placeholder="Who recommended this? Why do you want to watch it?">${item.notes || ''}</textarea>
                                 <button class="btn btn-small" style="margin-top: 8px;" onclick="saveNotes('${item.firestoreId}')">Save Note</button>
+                            </div>
+                        </div>
+
+                        <!-- Tags Section -->
+                        <div class="tags-section">
+                            <div><strong>Tags:</strong></div>
+                            ${item.tags && item.tags.length > 0 ? `
+                                <div class="item-tags" style="margin-top: 8px;">
+                                    ${item.tags.map(tag => `
+                                        <span class="tag-badge">
+                                            ${tag}
+                                            <span class="tag-remove" onclick="removeTag('${item.firestoreId}', '${tag.replace(/'/g, "\\'")}')">×</span>
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            ` : '<div style="color: var(--color-text-secondary); font-size: 0.9em; margin-top: 5px;">No tags yet</div>'}
+                            <div class="tag-form" style="margin-top: 10px; display: flex; gap: 8px;">
+                                <input type="text" id="tag-input-${item.firestoreId}" placeholder="Add a tag..." style="flex: 1; padding: 8px; border: 2px solid var(--color-border); border-radius: 8px; font-size: 14px;" onkeypress="if(event.key === 'Enter') addTag('${item.firestoreId}')">
+                                <button class="btn btn-small" onclick="addTag('${item.firestoreId}')">Add Tag</button>
                             </div>
                         </div>
 
