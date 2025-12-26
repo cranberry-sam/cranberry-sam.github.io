@@ -928,6 +928,84 @@
             color: var(--color-text);
         }
 
+        /* Preview Modal */
+        .preview-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .preview-item {
+            background: var(--color-surface-alt);
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .preview-poster {
+            width: 150px;
+            height: 225px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-details {
+            flex: 1;
+        }
+
+        .preview-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        .preview-meta {
+            color: var(--color-text-secondary);
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .preview-genres {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .preview-overview {
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .preview-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .preview-links a {
+            color: var(--color-text);
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .preview-links a:hover {
+            opacity: 0.7;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -978,6 +1056,24 @@
             }
 
             .wizard-buttons .btn {
+                width: 100%;
+            }
+
+            .preview-item {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-poster {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+            }
+
+            .preview-actions {
+                flex-direction: column;
+            }
+
+            .preview-actions .btn {
                 width: 100%;
             }
         }
@@ -1078,6 +1174,17 @@
 
                 <div id="watchlistItems" class="watchlist-items">
                     <div class="loading">Loading your watchlist...</div>
+                </div>
+            </div>
+
+                <!-- Preview Modal -->
+            <div id="previewOverlay" class="wizard-overlay" onclick="closePreviewOnOverlayClick(event)">
+                <div class="wizard-modal" onclick="event.stopPropagation()">
+                    <div class="wizard-header">
+                        <h2>Preview</h2>
+                        <button class="wizard-close" onclick="closePreview()">×</button>
+                    </div>
+                    <div id="previewContent" class="preview-content"></div>
                 </div>
             </div>
 
@@ -1393,7 +1500,7 @@
 
                 if (results && results.length > 0) {
                     resultsContainer.innerHTML = results.map(item => `
-                        <div class="search-result-item" onclick='addToWatchlist(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                        <div class="search-result-item" onclick='showPreview(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
                             ${item.image
                                 ? `<img src="${item.image}" alt="${item.title}">`
                                 : '<div style="width:100%;height:225px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;">No Image</div>'
@@ -1491,6 +1598,73 @@
                 url: item.collectionViewUrl,
                 rawData: item
             }));
+        }
+
+        // ========== PREVIEW MODAL ==========
+        let currentPreviewItem = null;
+
+        function showPreview(item) {
+            currentPreviewItem = item;
+
+            const previewContent = document.getElementById('previewContent');
+            const tmdbUrl = (item.type === 'movie' || item.type === 'tv')
+                ? `https://www.themoviedb.org/${item.type}/${item.apiId}`
+                : null;
+
+            previewContent.innerHTML = `
+                <div class="preview-item">
+                    ${item.image
+                        ? `<img src="${item.image}" alt="${item.title}" class="preview-poster">`
+                        : '<div class="preview-poster" style="background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px;">No Image</div>'
+                    }
+                    <div class="preview-details">
+                        <div class="preview-title">${item.title}</div>
+                        <div class="preview-meta">
+                            ${item.type.toUpperCase()}
+                            ${item.year ? ` • ${item.year}` : ''}
+                            ${item.author ? ` • ${item.author}` : ''}
+                            ${item.artist ? ` • ${item.artist}` : ''}
+                            ${item.rating ? ` • ⭐ ${item.rating}` : ''}
+                        </div>
+                        ${item.genres && item.genres.length > 0 ? `
+                            <div class="preview-genres">
+                                ${item.genres.map(genre => `<span class="genre-badge">${genre}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        ${item.overview ? `
+                            <div class="preview-overview">${item.overview}</div>
+                        ` : ''}
+                        <div class="preview-links">
+                            ${tmdbUrl ? `<a href="${tmdbUrl}" target="_blank">View on TMDB</a>` : ''}
+                            ${item.url && !tmdbUrl ? `<a href="${item.url}" target="_blank">View Details</a>` : ''}
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn" onclick="addFromPreview()">Add to Watchlist</button>
+                            <button class="btn btn-secondary" onclick="closePreview()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('previewOverlay').classList.add('active');
+        }
+
+        function closePreview() {
+            document.getElementById('previewOverlay').classList.remove('active');
+            currentPreviewItem = null;
+        }
+
+        function closePreviewOnOverlayClick(event) {
+            if (event.target.id === 'previewOverlay') {
+                closePreview();
+            }
+        }
+
+        async function addFromPreview() {
+            if (!currentPreviewItem) return;
+
+            await addToWatchlist(currentPreviewItem);
+            closePreview();
         }
 
         async function addToWatchlist(item) {
