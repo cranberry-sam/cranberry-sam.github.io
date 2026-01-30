@@ -1,0 +1,40 @@
+# PDF Audiobook Generator Configuration
+# This skill runs in Claude Code - no API key needed!
+
+# Text-to-Speech Settings
+tts:
+  speaking_rate: 1.0
+  voice_model: "en_US-ryan-high"  # Clear, natural voice (recommended)
+  audio_quality: "high"
+  output_format: "mp3"
+
+# Text Processing Settings
+text_processing:
+  summarize_sections:
+    - "bibliography"
+    - "references"
+    - "index"
+    - "appendix"
+    - "glossary"
+  include_original_captions: false
+  citation_length_threshold: 200
+  table_handling: "describe"
+
+# Image Analysis Settings
+image_analysis:
+  model: "claude-3-5-sonnet-20241022"
+  max_tokens: 500
+  description_style: "detailed"
+  include_technical_details: true
+
+# Output Settings
+output:
+  script_directory: "output/scripts"
+  audio_directory: "output/audio"
+  image_directory: "output/images"
+  keep_intermediate_files: true
+
+# Performance Settings
+performance:
+  max_concurrent_api_calls: 3
+  audio_batch_size: 10

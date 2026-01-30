@@ -1,273 +1,206 @@
-# PDF Audiobook Generator - Claude Code Skill
+# PDF Audiobook Generator
 
-A Claude Code Skill that converts textbook PDFs into high-quality audiobooks with AI-generated image descriptions.
+**A Claude Code skill for converting textbook PDFs into audiobooks with AI-generated image descriptions.**
 
-## Overview
-
-This skill helps you create audiobooks from legally obtained textbooks by:
-
-- **Extracting text** chapter-by-chapter from PDFs
-- **Analyzing images** with Claude's vision AI to generate natural language descriptions
-- **Handling special content** like citations, bibliographies, and indices intelligently
-- **Generating audio** using free, local text-to-speech (Piper TTS)
-- **Including context** like page numbers and figure labels in descriptions
+⚠️ **This skill is designed exclusively for Claude Code.** Claude analyzes images directly during your conversation - no separate API calls needed!
 
 ## Features
 
-### Intelligent Image Handling
-- AI-generated descriptions of figures, diagrams, and images
-- Automatic detection of figure labels (e.g., "Figure 3.2")
-- Page number references in audio
-- Customizable description styles (concise, detailed, very detailed)
-
-### Smart Text Processing
-- Auto-summarizes citations, bibliographies, and indices
-- Handles tables appropriately
-- Removes content that doesn't translate well to audio
-
-### Cost-Effective
-- Free local TTS (Piper) - no per-character fees
-- Minimal AI costs (~$2-4 per chapter for image analysis)
-- Typical 500-page textbook: $10-20 total
-
-### Hybrid Workflow
-- **Fast operations** run interactively with Claude's help
-- **Slow operations** run standalone (no token costs during processing)
-- Review and edit scripts before generating audio
+- **AI Image Descriptions**: Claude analyzes figures, diagrams, and images using vision capabilities
+- **Smart Citations**: Summarizes bibliographies, references, and indices instead of reading them verbatim
+- **Voice Selection**: Choose from 8 different voices (male/female, US/British accents)
+- **Editable Scripts**: Review and edit the generated text before audio conversion
+- **Flexible Processing**: Handle full documents, specific chapters, or custom page ranges
+- **Free TTS**: Uses Piper for high-quality, local text-to-speech (no per-character fees)
+- **Page/Figure References**: Includes page numbers and figure labels in audio descriptions
 
 ## Quick Start
 
-### 1. Install Dependencies
+1. **First time setup**:
+   ```bash
+   cd .claude/skills/pdf-audiobook
+   pip3 install -r requirements.txt
+   ```
 
-```bash
-cd .claude/skills/pdf-audiobook
-pip install -r requirements.txt
-```
+2. **Install FFmpeg** (required for MP3 conversion):
+   ```bash
+   # macOS
+   brew install ffmpeg
 
-Install system dependencies:
-- **Piper TTS**: `pip install piper-tts`
-- **FFmpeg**: Install via your system package manager
+   # Linux
+   sudo apt install ffmpeg
+   ```
 
-### 2. Configure API Key
-
-```bash
-cp config.yaml.template config.yaml
-# Edit config.yaml and add your Anthropic API key
-```
-
-### 3. Start Using the Skill
-
-Just chat with Claude Code:
-
-```
-You: I want to convert my biology textbook to an audiobook
-
-Claude: Great! I can help with that. What's the path to your PDF?
-
-You: ~/Documents/bio_textbook.pdf
-
-Claude: [Extracts chapters and guides you through the process]
-```
+3. **Start a conversation with Claude Code**:
+   - "Convert this PDF to an audiobook: /path/to/textbook.pdf"
+   - "Create an audiobook from chapter 3 of my textbook"
+   - "Process pages 10-25 of this PDF as audio"
 
 ## How It Works
 
-### The Hybrid Approach
+### Claude Code Interactive Steps (Fast)
+1. **Text Extraction**: Claude extracts text and identifies images from your PDF
+2. **Image Analysis**: Claude analyzes images directly and generates descriptions
+3. **Script Generation**: Claude creates an editable text script with image descriptions inserted
+4. **Review**: You can review/edit the script before audio generation
 
-**Interactive Steps (Claude assists)**:
-1. Extract chapter list from PDF (seconds)
-2. Process chapter text and images (seconds)
-3. Review and edit generated scripts (your pace)
+### Audio Generation (Slow - Run Independently)
+5. **Voice Selection**: Choose your preferred voice from 8 options
+6. **Audio Generation**: Run the script to generate MP3 (takes time, completely free)
 
-**Standalone Steps (run independently)**:
-4. Analyze images with AI (5-10 minutes per chapter)
-5. Generate MP3 audio (2-3 hours per chapter)
+This hybrid approach means **zero API costs** and fast processing for everything except audio generation (which runs locally on your machine).
 
-This design ensures **zero token costs** during long operations while still providing AI assistance where it's valuable.
+## Workflow
 
-## Typical Workflow
-
-### First Chapter
-
-```
-You: Convert chapter 3 of my textbook to audio
-
-Claude: [Runs extraction and processing - fast]
-        Found 7 images in chapter 3.
-
-        To analyze them with AI:
-
-        python .claude/skills/pdf-audiobook/scripts/analyze_images.py \
-          output/scripts/chapter_03.txt \
-          output/scripts/chapter_03_images/
-
-        Run this and let me know when it's done!
-
-[You run the command, wait 5 minutes]
-
-You: Image analysis is done
-
-Claude: [Shows you the script preview]
-        Here's the generated script. Want to review or edit anything?
-
-You: Looks good!
-
-Claude: To generate audio:
-
-        python .claude/skills/pdf-audiobook/scripts/generate_audio.py \
-          output/scripts/chapter_03.txt \
-          output/audio/chapter_03.mp3
-
-        This will take about 2 hours. Run it in the background!
-
-[You run it overnight]
-
-You: Chapter 3 is ready! Let's do chapter 4.
-
-Claude: [Process continues...]
-```
-
-### Batch Processing
-
-Once you're comfortable, batch process multiple chapters:
-
+### Process Full Document
 ```bash
-for i in {1..12}; do
-  python scripts/process_chapter.py textbook.pdf $i output/scripts/chapter_$(printf "%02d" $i).txt
-  python scripts/analyze_images.py output/scripts/chapter_$(printf "%02d" $i).txt output/scripts/chapter_$(printf "%02d" $i)_images/
-  python scripts/generate_audio.py output/scripts/chapter_$(printf "%02d" $i).txt output/audio/chapter_$(printf "%02d" $i).mp3
-done
+# 1. Extract and process (Claude guides you through this)
+python3 scripts/process_chapter.py document.pdf --full output/scripts/full_doc.txt
+
+# 2. Claude analyzes images and updates the script automatically
+
+# 3. Generate audio (you run this, takes several hours)
+python3 scripts/generate_audio_python.py output/scripts/full_doc.txt output/audio/audiobook.mp3
 ```
 
-## Documentation
+### Process Specific Chapter
+```bash
+# Requires PDF with table of contents
+python3 scripts/process_chapter.py textbook.pdf 3 output/scripts/chapter_03.txt
+```
 
-- **[SKILL.md](SKILL.md)**: Main skill definition and overview
-- **[WORKFLOW.md](WORKFLOW.md)**: Detailed step-by-step guide
-- **[EXAMPLES.md](EXAMPLES.md)**: Real conversation examples
-- **[scripts/README.md](scripts/README.md)**: Technical documentation for each script
+### Process Page Range
+```bash
+# Process pages 10-25
+python3 scripts/process_chapter.py document.pdf --pages 10-25 output/scripts/section.txt
+```
 
-## Configuration
+## Voice Options
 
-Edit `config.yaml` to customize:
+When generating audio, you'll be prompted to select a voice:
 
-### Voice Settings
-- Speaking rate (0.5 to 2.0, default: 1.0)
-- Voice model (different accents/languages)
-- Audio quality (low, medium, high)
+1. **en_US-ryan-high** - US male, clear and natural ⭐ (recommended)
+2. **en_US-kathleen-low** - US female, warm
+3. **en_US-amy-medium** - US female, clear
+4. **en_US-lessac-medium** - US neutral/professional
+5. **en_US-danny-low** - US male, expressive
+6. **en_US-libritts-high** - US high quality (slower generation)
+7. **en_GB-alan-medium** - British male
+8. **en_GB-alba-medium** - British female
 
-### Text Processing
-- Which sections to summarize
-- How to handle tables
-- Citation length thresholds
+The default (`en_US-ryan-high`) was chosen based on user feedback that the original default was too bland.
 
-### Image Analysis
-- Description style (concise, detailed, very_detailed)
-- Technical detail level
-- Claude model to use
+You can also set a default voice in `config.yaml`.
 
-## Cost Breakdown
-
-### Per Chapter (typical 30-page chapter)
-- Image analysis (8 images): ~$2-4
-- Audio generation: $0 (free, local)
-- **Total**: ~$2-4 per chapter
-
-### Full Textbook (500 pages, 15 chapters, 100 images)
-- Image analysis: ~$25-50
-- Audio generation: $0
-- **Total**: ~$25-50 for entire book
-
-Compare to commercial audiobook production: $2000-5000+ per book!
-
-## Output
+## Output Structure
 
 ```
 output/
 ├── scripts/
-│   ├── chapter_01.txt      # Editable text scripts
-│   ├── chapter_02.txt
-│   ├── chapter_03.txt
+│   ├── chapter_01.txt         # Editable text scripts
+│   ├── chapter_01_images/     # Extracted images
 │   └── ...
-├── audio/
-│   ├── chapter_01.mp3      # Final audiobook files
-│   ├── chapter_02.mp3
-│   ├── chapter_03.mp3
-│   └── ...
-└── images/
-    ├── chapter_01_images/  # Extracted images
-    ├── chapter_02_images/
+└── audio/
+    ├── chapter_01.mp3         # Final audio files
     └── ...
+```
+
+## Configuration
+
+Edit `config.yaml` to customize:
+- Default voice and speaking rate
+- Text processing rules (what to summarize)
+- Audio quality settings
+- Output directories
+
+See `config.yaml.template` for all options.
+
+## Cost
+
+- **Claude Analysis**: $0 (runs in Claude Code)
+- **TTS Generation**: $0 (runs locally using Piper)
+- **Total**: $0
+
+## Troubleshooting
+
+### Piper installation issues
+If Piper doesn't install correctly:
+```bash
+pip3 install --upgrade piper-tts
+```
+
+See the [Piper documentation](https://github.com/rhasspy/piper) for platform-specific help.
+
+### FFmpeg required
+Audio generation requires FFmpeg for MP3 conversion:
+```bash
+# macOS
+brew install ffmpeg
+
+# Linux
+sudo apt install ffmpeg
+
+# Windows
+# Download from https://ffmpeg.org/download.html
+```
+
+### Audio generation is slow
+This is normal! Generating 1 hour of audio can take 1-2 hours depending on your CPU. The voice model affects speed:
+- Fastest: `danny-low`, `kathleen-low`
+- Medium: `ryan-high`, `amy-medium`, `lessac-medium`
+- Slowest: `libritts-high` (highest quality)
+
+Run audio generation in the background or overnight.
+
+### Python command issues
+Always use `python3` on macOS/Linux:
+```bash
+python3 scripts/process_chapter.py ...  # ✅ Correct
+python scripts/process_chapter.py ...   # ❌ May fail
 ```
 
 ## Requirements
 
-### Python Packages
-- PyMuPDF (fitz) - PDF processing
-- anthropic - Claude API
-- piper-tts - Text-to-speech
-- Pillow - Image processing
-- PyYAML - Configuration
+All dependencies in `requirements.txt`:
+- `PyMuPDF` - PDF text/image extraction
+- `piper-tts` - Local text-to-speech engine
+- `pyyaml` - Configuration
+- `pillow` - Image processing
+- `pydub` - Audio processing
 
-### System Tools
+System requirements:
 - Python 3.8+
-- FFmpeg (for audio processing)
-- Internet connection (for image analysis only)
+- FFmpeg
 
-## Troubleshooting
+## Examples
 
-### Piper Installation Issues
-Piper can be tricky to install. If you have problems:
-1. Try: `pip install piper-tts`
-2. Check: https://github.com/rhasspy/piper
-3. Ask Claude for help!
+See [EXAMPLES.md](EXAMPLES.md) for detailed usage examples.
 
-### API Key Errors
-Make sure `config.yaml` exists with a valid `ANTHROPIC_API_KEY`.
+## Advanced Usage
 
-### Audio Generation is Slow
-This is normal! High-quality TTS takes time. Run overnight or during work.
-
-### Chapter Not Found
-Run `extract_chapters.py` first to see available chapters.
-
-## Tips for Best Results
-
-1. **Start with one chapter** to get familiar with the workflow
-2. **Review scripts carefully** before generating audio
-3. **Customize voice settings** early on
-4. **Keep original PDFs** until you're satisfied with results
-5. **Backup generated scripts** - they're valuable after editing
-
-## Limitations
-
-- Works best with standard textbook PDFs (not scanned images)
-- Image descriptions are AI-generated (may need human review)
-- Audio generation takes time (1-3 hours per chapter)
-- Requires internet connection for image analysis
+See [WORKFLOW.md](WORKFLOW.md) for step-by-step instructions and advanced options.
 
 ## Legal Notice
 
 This tool is designed for creating accessible audiobooks from **legally obtained** textbooks for personal use. Ensure you have the right to use the source material.
 
-## Contributing
+## Tips for Best Results
 
-This is a Claude Code Skill. To modify:
-1. Edit files in `.claude/skills/pdf-audiobook/`
-2. Test with Claude Code
-3. Share improvements with the community!
-
-## License
-
-This skill is open source and free to use. The underlying technologies (Piper, PyMuPDF, Claude API) have their own licenses.
+1. **Start with one chapter** to get familiar with the workflow
+2. **Review scripts carefully** before generating audio (especially image descriptions)
+3. **Try different voices** to find what works best for your content
+4. **Keep original PDFs** until you're satisfied with results
+5. **Backup generated scripts** - they're valuable after Claude has analyzed the images
 
 ## Questions?
 
 Just ask Claude Code! The skill is designed to help you through the entire process.
 
 Example questions:
-- "How do I process chapter 5?"
-- "The image analysis failed, what do I do?"
-- "Can I speed up the voice?"
-- "How much will it cost to process my entire book?"
+- "How do I process just chapter 5?"
+- "Can I make the voice faster?"
+- "How long will this take to generate?"
+- "What voice sounds best for a medical textbook?"
 
 ---
 

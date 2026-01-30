@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
 """
-Process a specific chapter from a PDF file.
+Process a PDF file for audiobook conversion.
 
 This script:
-1. Extracts text from the specified chapter
+1. Extracts text from the specified pages/chapter
 2. Identifies and extracts images
-3. Creates placeholders for image descriptions
+3. Creates placeholders for image descriptions (filled in by Claude Code)
 4. Identifies sections that should be summarized (citations, indices, etc.)
-5. Outputs a script file ready for image analysis
+5. Outputs a script file ready for audio generation
 
 Usage:
-    python process_chapter.py <pdf_path> <chapter_number> <output_script>
+    # Process specific chapter (requires TOC)
+    python3 process_chapter.py <pdf_path> <chapter_number> <output_script>
 
-Example:
-    python process_chapter.py textbook.pdf 3 output/scripts/chapter_03.txt
+    # Process entire document
+    python3 process_chapter.py <pdf_path> --full <output_script>
+
+    # Process custom page range
+    python3 process_chapter.py <pdf_path> --pages <start-end> <output_script>
+
+Examples:
+    python3 process_chapter.py textbook.pdf 3 output/scripts/chapter_03.txt
+    python3 process_chapter.py paper.pdf --full output/scripts/full_paper.txt
+    python3 process_chapter.py book.pdf --pages 10-25 output/scripts/section.txt
 """
 
 import sys
@@ -249,14 +258,30 @@ def create_script(pages_text, images, config):
     return "\n".join(script_lines)
 
 
+def parse_page_range(range_str):
+    """Parse page range string like '10-25' into (start, end) tuple (0-indexed)."""
+    try:
+        start, end = range_str.split('-')
+        return (int(start) - 1, int(end) - 1)  # Convert to 0-indexed
+    except:
+        print(f"Error: Invalid page range '{range_str}'. Use format: START-END (e.g., 1-52)")
+        sys.exit(1)
+
+
 def main():
     if len(sys.argv) < 4:
-        print("Usage: python process_chapter.py <pdf_path> <chapter_number> <output_script>")
-        print("Example: python process_chapter.py textbook.pdf 3 output/scripts/chapter_03.txt")
+        print("Usage:")
+        print("  python3 process_chapter.py <pdf_path> <chapter_number> <output_script>")
+        print("  python3 process_chapter.py <pdf_path> --full <output_script>")
+        print("  python3 process_chapter.py <pdf_path> --pages <start-end> <output_script>")
+        print("\nExamples:")
+        print("  python3 process_chapter.py textbook.pdf 3 output/scripts/chapter_03.txt")
+        print("  python3 process_chapter.py paper.pdf --full output/scripts/full_paper.txt")
+        print("  python3 process_chapter.py book.pdf --pages 10-25 output/scripts/section.txt")
         sys.exit(1)
 
     pdf_path = sys.argv[1]
-    chapter_number = int(sys.argv[2])
+    mode_arg = sys.argv[2]
     output_script = sys.argv[3]
 
     # Validate file exists
@@ -267,18 +292,57 @@ def main():
     # Load config
     config = load_config()
 
-    print(f"Processing Chapter {chapter_number} from: {pdf_path}")
-    print("=" * 60)
+    # Determine page range based on mode
+    doc = fitz.open(pdf_path)
+    total_pages = len(doc)
+    doc.close()
 
-    # Get chapter page range
-    page_range = get_chapter_pages(pdf_path, chapter_number)
-    if not page_range:
-        print(f"Error: Could not find chapter {chapter_number}")
-        print("Try running extract_chapters.py first to see available chapters.")
-        sys.exit(1)
+    if mode_arg == '--full':
+        # Process entire document
+        start_page = 0
+        end_page = total_pages - 1
+        print(f"Processing entire document from: {pdf_path}")
+        print("=" * 60)
+        print(f"Total pages: {total_pages}")
 
-    start_page, end_page = page_range
-    print(f"Chapter {chapter_number}: pages {start_page + 1} to {end_page + 1}")
+    elif mode_arg == '--pages':
+        # Process custom page range
+        if len(sys.argv) < 5:
+            print("Error: --pages requires a range argument (e.g., --pages 10-25)")
+            sys.exit(1)
+        page_range_str = sys.argv[3]
+        output_script = sys.argv[4]
+        start_page, end_page = parse_page_range(page_range_str)
+
+        # Validate range
+        if start_page < 0 or end_page >= total_pages or start_page > end_page:
+            print(f"Error: Invalid page range {start_page+1}-{end_page+1} (document has {total_pages} pages)")
+            sys.exit(1)
+
+        print(f"Processing pages {start_page + 1} to {end_page + 1} from: {pdf_path}")
+        print("=" * 60)
+
+    else:
+        # Process specific chapter (original behavior)
+        try:
+            chapter_number = int(mode_arg)
+        except ValueError:
+            print(f"Error: Invalid argument '{mode_arg}'. Expected chapter number, --full, or --pages")
+            sys.exit(1)
+
+        print(f"Processing Chapter {chapter_number} from: {pdf_path}")
+        print("=" * 60)
+
+        # Get chapter page range
+        page_range = get_chapter_pages(pdf_path, chapter_number)
+        if not page_range:
+            print(f"Error: Could not find chapter {chapter_number}")
+            print("This PDF may not have a table of contents.")
+            print("Try using --full to process the entire document, or --pages START-END for a specific range.")
+            sys.exit(1)
+
+        start_page, end_page = page_range
+        print(f"Chapter {chapter_number}: pages {start_page + 1} to {end_page + 1}")
 
     # Extract text
     print("\nExtracting text...")
@@ -313,14 +377,13 @@ def main():
     print("=" * 60)
 
     if images:
-        print(f"\nNext step: Analyze images with AI")
-        print(f"Run this command:\n")
-        print(f"python scripts/analyze_images.py {output_script} {image_dir}/")
-        print(f"\nThis will analyze {len(images)} images and cost approximately ${len(images) * 0.25:.2f}")
+        print(f"\nNext step: Claude Code will analyze {len(images)} images and insert descriptions.")
+        print("(This happens automatically in the Claude Code workflow)")
     else:
-        print("\nNo images found in this chapter.")
-        print("You can proceed directly to audio generation:")
-        print(f"\npython scripts/generate_audio.py {output_script} output/audio/chapter_{chapter_number:02d}.mp3")
+        print("\nNo images found in this section.")
+
+    print(f"\nAfter image analysis, generate audio with:")
+    print(f"python3 scripts/generate_audio_python.py {output_script} output/audio/audiobook.mp3")
 
 
 if __name__ == "__main__":
